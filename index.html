@@ -258,7 +258,7 @@
   .section-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:30px; flex-wrap:wrap; gap:16px;}
   .section-head h2{ font-size:clamp(26px,3vw,36px); }
   .section-head .tag{ color:var(--tan); font-size:12px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:8px; display:block;}
-  .filter-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
+  .filter-row{ display:flex; gap:12px; flex-wrap:wrap; margin:0 0 34px; padding-top:6px; }
   .chip{
     padding:9px 16px; border-radius:11px; font-size:13px; font-weight:600;
     background:var(--panel); border:1px solid var(--panel-edge); color:var(--dim);
@@ -1077,17 +1077,98 @@ function setCatalogStatus(text,type=''){catalogStatus.textContent=text||'';catal
 function apiJsonp(params){return new Promise((resolve,reject)=>{const cb='__bzone_'+Date.now()+'_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const q=new URLSearchParams({...params,callback:cb,t:Date.now()});const timer=setTimeout(()=>{cleanup();reject(new Error('Backend timeout'));},15000);function cleanup(){clearTimeout(timer);delete window[cb];script.remove();}window[cb]=p=>{cleanup();resolve(p);};script.onerror=()=>{cleanup();reject(new Error('Backend connection failed'));};script.src=BZONE_API_URL+'?'+q.toString();document.head.appendChild(script);});}
 function postForm(fields){return new Promise((resolve,reject)=>{const iframe=document.createElement('iframe');iframe.name='bzone_post_'+Date.now()+'_'+Math.random().toString(36).slice(2);iframe.style.display='none';document.body.appendChild(iframe);const form=document.createElement('form');form.method='POST';form.action=BZONE_API_URL;form.target=iframe.name;form.style.display='none';Object.entries(fields).forEach(([k,v])=>{const i=document.createElement('input');i.type='hidden';i.name=k;i.value=String(v??'');form.appendChild(i);});document.body.appendChild(form);iframe.onload=()=>{setTimeout(()=>{form.remove();iframe.remove();resolve(true);},250);};iframe.onerror=()=>{form.remove();iframe.remove();reject(new Error('Backend POST failed'));};form.submit();});}
 function randomToken(){const a=new Uint8Array(24);crypto.getRandomValues(a);return Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');}
-async function pollAuth(nonce){for(let i=0;i<30;i++){const r=await apiJsonp({action:'authResult',nonce});if(r?.ok&&r.session){return r.session;}if(r?.pending===false)break;await new Promise(x=>setTimeout(x,500));}throw new Error('Google sign-in timed out');}
+async function pollAuth(nonce){for(let i=0;i<40;i++){const r=await apiJsonp({action:'authResult',nonce});if(r?.ok&&r.session){return r.session;}await new Promise(x=>setTimeout(x,500));}throw new Error('Google sign-in timed out');}
+async function waitForGoogleIdentityServices(){
+  for(let i=0;i<40;i++){
+    if(window.google?.accounts?.id) return true;
+    await new Promise(r=>setTimeout(r,250));
+  }
+  return false;
+}
+
 async function signInWithGoogle(){
-  if(GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')){showToast('⚙️ Додай Google Client ID у B-zone.html');return;}
-  if(!window.google?.accounts?.oauth2){showToast('⏳ Google Sign-In ще завантажується');return;}
-  const nonce=randomToken();localStorage.setItem(AUTH_NONCE_KEY,nonce);
-  const client=google.accounts.oauth2.initCodeClient({client_id:GOOGLE_CLIENT_ID,scope:'openid email profile',ux_mode:'popup',callback:async response=>{
-    if(response.error){showToast('❌ Вхід через Google скасовано');return;}
-    try{showToast('🔐 Перевіряємо Google account...');await postForm({action:'googleLogin',code:response.code,nonce,redirectUri:location.origin});const session=await pollAuth(nonce);applySession(session);localStorage.removeItem(AUTH_NONCE_KEY);closeModal('loginOverlay');showToast('🦬 Вітаємо у B-ZONE, '+state.nickname+'!');}
-    catch(err){console.error(err);showToast('❌ Не вдалося виконати вхід через Google');}
-  },error_callback:()=>showToast('❌ Не вдалося відкрити Google Sign-In')});
-  client.requestCode();
+  if(!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')){
+    showToast('⚙️ Google Client ID не налаштований');
+    return;
+  }
+
+  const ready=await waitForGoogleIdentityServices();
+  if(!ready){
+    showToast('❌ Google Sign-In не завантажився. Онови сторінку.');
+    return;
+  }
+
+  const btn=document.getElementById('googleLoginBtn');
+  const original=btn.innerHTML;
+  btn.style.pointerEvents='none';
+  btn.style.opacity='0.65';
+  btn.innerHTML='<span class="mono">🔐 Вхід через Google...</span>';
+
+  const nonce=randomToken();
+  localStorage.setItem(AUTH_NONCE_KEY,nonce);
+
+  google.accounts.id.initialize({
+    client_id:GOOGLE_CLIENT_ID,
+    nonce:nonce,
+    auto_select:false,
+    cancel_on_tap_outside:false,
+    context:'signin',
+    callback:async response=>{
+      try{
+        if(!response || !response.credential){
+          throw new Error('Google credential not received');
+        }
+
+        showToast('🔐 Перевіряємо Google account...');
+
+        // Send the Google ID token to Apps Script.
+        // Apps Script verifies it and creates/restores the participant.
+        await postForm({
+          action:'googleLogin',
+          credential:response.credential,
+          nonce:nonce
+        });
+
+        const session=await pollAuth(nonce);
+
+        if(!session || !session.sessionToken){
+          throw new Error('Session was not created');
+        }
+
+        applySession(session);
+        localStorage.removeItem(AUTH_NONCE_KEY);
+        closeModal('loginOverlay');
+        showToast('🦬 Вітаємо у B-ZONE, '+state.nickname+'!');
+
+      }catch(err){
+        console.error('Google login error:',err);
+        localStorage.removeItem(AUTH_NONCE_KEY);
+        showToast('❌ Не вдалося виконати вхід через Google');
+      }finally{
+        btn.style.pointerEvents='auto';
+        btn.style.opacity='1';
+        btn.innerHTML=original;
+      }
+    }
+  });
+
+  // Use the Google Identity Services prompt after initialization.
+  // The callback above receives the signed ID token.
+  google.accounts.id.prompt(notification=>{
+    if(notification.isNotDisplayed?.()){
+      console.warn('Google prompt not displayed:',notification.getNotDisplayedReason?.());
+    }
+    if(notification.isSkippedMoment?.()){
+      console.warn('Google prompt skipped:',notification.getSkippedReason?.());
+    }
+  });
+
+  // Safety timeout so the button never remains disabled.
+  setTimeout(()=>{
+    btn.style.pointerEvents='auto';
+    btn.style.opacity='1';
+    if(btn.innerHTML.includes('Вхід через Google')) btn.innerHTML=original;
+  },30000);
 }
 function applySession(session){state.loggedIn=true;state.sessionToken=session.sessionToken||'';localStorage.setItem(SESSION_KEY,state.sessionToken);state.participantId=String(session.participantId||'');state.googleId=String(session.googleId||'');state.nickname=String(session.nickname||'BisonUser');state.avatar=String(session.avatar||AVATAR_OPTIONS[1]);state.diamonds=Math.max(0,Number(session.diamonds)||0);state.loginType='Google';refreshHeader();}
 async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){localStorage.setItem(SESSION_KEY,r.session.sessionToken);applySession(r.session);}else{localStorage.removeItem(SESSION_KEY);state.loggedIn=false;state.diamonds=0;refreshHeader();}}catch(e){console.error(e);state.diamonds=0;refreshHeader();}}
