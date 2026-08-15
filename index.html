@@ -1403,7 +1403,7 @@ function renderCart(){
         ${(() => {
           const cartImg = productImage(item);
           return cartImg
-            ? `<img class="cart-product-img" src="${escapeHtml(cartImg)}" alt="${escapeHtml(item.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="cart-product-fallback">${escapeHtml(item.glyph || '🛍️')}</span>`
+            ? `<img class="cart-product-img" src="${escapeHtml(cartImg)}" alt="${escapeHtml(item.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="cart-product-fallback" style="display:none">${escapeHtml(item.glyph || '🛍️')}</span>`
             : `<span class="cart-product-fallback" style="display:flex">${escapeHtml(item.glyph || '🛍️')}</span>`;
         })()}
       </div>
