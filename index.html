@@ -900,6 +900,101 @@ button,a,.chip,.tile,.avatar-btn,.diamond-pill,.cart-header-btn{touch-action:man
     .page-btn{min-width:42px;height:42px;}
   }
 
+
+/* ===== B-ZONE THEME SWITCHER ===== */
+:root{
+  --theme-bg:#07111f;
+  --theme-panel:#0d1b2e;
+  --theme-panel-2:#12243a;
+  --theme-text:#f5f8ff;
+  --theme-muted:#9eacc0;
+  --theme-border:rgba(255,255,255,.10);
+  --theme-card:rgba(255,255,255,.055);
+  --theme-shadow:0 14px 40px rgba(0,0,0,.28);
+}
+html[data-theme="light"]{
+  --theme-bg:#f4f7fb;
+  --theme-panel:#ffffff;
+  --theme-panel-2:#eef3f9;
+  --theme-text:#172235;
+  --theme-muted:#65748a;
+  --theme-border:rgba(20,38,65,.12);
+  --theme-card:rgba(20,38,65,.055);
+  --theme-shadow:0 14px 36px rgba(31,53,82,.12);
+}
+body{
+  transition:background-color .25s ease,color .25s ease;
+}
+html[data-theme="light"] body{
+  background:var(--theme-bg) !important;
+  color:var(--theme-text) !important;
+}
+html[data-theme="light"] .theme-surface,
+html[data-theme="light"] .card,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .modal,
+html[data-theme="light"] .overlay,
+html[data-theme="light"] .profile-card{
+  color:var(--theme-text);
+}
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select{
+  background:#fff !important;
+  color:var(--theme-text) !important;
+  border-color:var(--theme-border) !important;
+}
+html[data-theme="light"] .muted,
+html[data-theme="light"] .secondary,
+html[data-theme="light"] .subtle{
+  color:var(--theme-muted) !important;
+}
+
+/* Top-bar theme control */
+.theme-switcher{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  height:38px;
+  padding:3px 5px;
+  border:1px solid var(--theme-border);
+  border-radius:999px;
+  background:var(--theme-card);
+  backdrop-filter:blur(12px);
+  box-shadow:0 5px 18px rgba(0,0,0,.10);
+}
+.theme-btn{
+  width:32px;
+  height:30px;
+  border:0;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background:transparent;
+  color:var(--theme-muted);
+  font-size:16px;
+  transition:all .2s ease;
+}
+.theme-btn:hover{
+  color:var(--theme-text);
+  transform:translateY(-1px);
+}
+.theme-btn.active{
+  background:#fff;
+  color:#152238;
+  box-shadow:0 2px 9px rgba(0,0,0,.18);
+}
+html[data-theme="light"] .theme-btn.active{
+  background:#152238;
+  color:#fff;
+}
+@media(max-width:700px){
+  .theme-switcher{height:34px;padding:2px 4px}
+  .theme-btn{width:28px;height:28px;font-size:14px}
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -922,6 +1017,11 @@ button,a,.chip,.tile,.avatar-btn,.diamond-pill,.cart-header-btn{touch-action:man
   </nav>
 
   <div class="header-right">
+<div class="theme-switcher" id="themeSwitcher" aria-label="Theme">
+  <button class="theme-btn" id="darkThemeBtn" type="button" title="Dark theme" aria-label="Dark theme">🌙</button>
+  <button class="theme-btn" id="lightThemeBtn" type="button" title="Light theme" aria-label="Light theme">☀️</button>
+</div>
+
     <div class="diamond-pill" id="diamondPill">
       <svg class="diamond-icon" viewBox="0 0 24 24" fill="none">
         <path d="M4 8L12 3L20 8L12 21L4 8Z" fill="url(#dgrad)" stroke="#5fe3d0" stroke-width="1.2" stroke-linejoin="round"/>
@@ -1072,7 +1172,11 @@ const RARITY_LABEL = {common:"Звичайний", rare:"Рідкісний", ep
 const AVATAR_ICON_B64 = "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";
 function svgAvatar(bg, emoji){ return "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='120' height='120' fill='${bg}'/><text x='50%' y='58%' font-size='58' text-anchor='middle' dominant-baseline='middle'>${emoji}</text></svg>`); }
 const AVATAR_OPTIONS = ["data:image/png;base64,"+AVATAR_ICON_B64,svgAvatar('#1541f0','🦬'),svgAvatar('#c9924f','🤠'),svgAvatar('#5fe3d0','💎'),svgAvatar('#7a4a26','🐾'),svgAvatar('#171d35','🔥')];
-let state={loggedIn:false,nickname:"Guest",avatar:AVATAR_OPTIONS[1],diamonds:0,participantId:"",googleId:"",loginType:"Guest",sessionToken:""};
+const DEFAULT_AVATAR=AVATAR_OPTIONS[1];
+function safeAvatar(src){const s=String(src||'').trim();return (!s||s==='undefined'||s==='null')?DEFAULT_AVATAR:s;}
+function setAvatarImage(img,src){if(!img)return;img.onerror=()=>{img.onerror=null;img.src=DEFAULT_AVATAR;};img.src=safeAvatar(src);}
+function compressAvatarFile(file,maxSize=384,quality=.78){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('Avatar read failed'));r.onload=()=>{const im=new Image();im.onerror=()=>reject(new Error('Invalid avatar'));im.onload=()=>{const s=Math.min(1,maxSize/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality));};im.src=r.result;};r.readAsDataURL(file);});}
+let state={loggedIn:false,nickname:"Guest",avatar:DEFAULT_AVATAR,diamonds:0,participantId:"",googleId:"",loginType:"Guest",sessionToken:"",settings:""};
 
 const grid=document.getElementById('tileGrid'),filterRow=document.getElementById('filterRow'),pagination=document.getElementById('pagination'),catalogStatus=document.getElementById('catalogStatus');
 function setCatalogStatus(text,type=''){catalogStatus.textContent=text||'';catalogStatus.className='catalog-status'+(type?' '+type:'');}
@@ -1172,11 +1276,11 @@ async function signInWithGoogle(){
     if(btn.innerHTML.includes('Вхід через Google')) btn.innerHTML=original;
   },30000);
 }
-function applySession(session){state.loggedIn=true;state.sessionToken=session.sessionToken||'';localStorage.setItem(SESSION_KEY,state.sessionToken);state.participantId=String(session.participantId||'');state.googleId=String(session.googleId||'');state.nickname=String(session.nickname||'BisonUser');state.avatar=String(session.avatar||AVATAR_OPTIONS[1]);state.diamonds=Math.max(0,Number(session.diamonds)||0);state.loginType='Google';refreshHeader();}
-async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){localStorage.setItem(SESSION_KEY,r.session.sessionToken);applySession(r.session);}else{localStorage.removeItem(SESSION_KEY);state.loggedIn=false;state.diamonds=0;refreshHeader();}}catch(e){console.error(e);state.diamonds=0;refreshHeader();}}
-async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session){applySession(r.session);localStorage.setItem(SESSION_KEY,r.session.sessionToken);}else{logoutLocal();}}catch(e){console.error(e);}}
-function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:AVATAR_OPTIONS[1],diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:''};localStorage.removeItem(SESSION_KEY);refreshHeader();}
-async function saveProfileServer(){if(!state.sessionToken)return false;const tx=randomToken();await postForm({action:'saveProfile',session:state.sessionToken,transaction:tx,nickname:state.nickname,avatar:state.avatar});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(r.result.session)applySession(r.result.session);return true;}if(r?.pending===false)break;await new Promise(x=>setTimeout(x,350));}throw new Error('Profile save timeout');}
+function applySession(session){state.loggedIn=true;state.sessionToken=String(session.sessionToken||'');localStorage.setItem(SESSION_KEY,state.sessionToken);state.participantId=String(session.participantId||'');state.googleId=String(session.googleId||'');state.nickname=String(session.nickname||'BisonUser');state.avatar=safeAvatar(session.avatar);state.diamonds=Math.max(0,Number(session.diamonds)||0);state.loginType='Google';state.settings=String(session.settings||'');refreshHeader();}
+async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){applySession(r.session);}else{logoutLocal();}}catch(e){console.error(e);refreshHeader();}}
+async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session)applySession(r.session);else logoutLocal();}catch(e){console.error(e);}}
+function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:''};localStorage.removeItem(SESSION_KEY);refreshHeader();}
+async function saveProfileServer(){if(!state.sessionToken)return false;const tx=randomToken();await postForm({action:'saveProfile',session:state.sessionToken,transaction:tx,nickname:state.nickname,avatar:safeAvatar(state.avatar),settings:JSON.stringify({nickname:state.nickname,avatar:safeAvatar(state.avatar)})});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(r.result.session)applySession(r.result.session);return true;}if(r?.pending===false)break;await new Promise(x=>setTimeout(x,350));}throw new Error('Profile save timeout');}
 async function purchaseServer(items){if(!state.sessionToken)throw new Error('Not authenticated');const tx=randomToken();await postForm({action:'purchase',session:state.sessionToken,transaction:tx,items:JSON.stringify(items.map(x=>({productId:x.id,quantity:x.qty})))});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(!r.result.ok)throw new Error(r.result.error||'Purchase failed');if(r.result.session)applySession(r.result.session);return r.result;}await new Promise(x=>setTimeout(x,350));}throw new Error('Purchase timeout');}
 
 function escapeHtml(value){ return String(value ?? '').replace(/[&<>'"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
@@ -1307,7 +1411,7 @@ const presetWrap = document.getElementById('presetAvatars');
 AVATAR_OPTIONS.forEach((src, idx)=>{
   const d = document.createElement('div');
   d.className = 'opt' + (idx===1?' selected':'');
-  d.innerHTML = `<img src="${src}">`;
+  d.innerHTML = `<img src="${safeAvatar(src)}" alt="Аватар" onerror="this.onerror=null;this.src=DEFAULT_AVATAR">`;
   d.addEventListener('click', ()=>{
     document.querySelectorAll('.preset-avatars .opt').forEach(o=>o.classList.remove('selected'));
     d.classList.add('selected');
@@ -1491,8 +1595,8 @@ function fmt(n){ return n.toLocaleString('uk-UA'); }
 function refreshHeader(){
   document.getElementById('diamondCount').textContent = fmt(state.diamonds);
   document.getElementById('profileDiamonds').textContent = fmt(state.diamonds);
-  document.getElementById('headerAvatar').src = state.avatar;
-  document.getElementById('bigAvatarImg').src = state.avatar;
+  setAvatarImage(document.getElementById('headerAvatar'),state.avatar);
+  setAvatarImage(document.getElementById('bigAvatarImg'),state.avatar);
   document.getElementById('nicknameInput').value = state.nickname;
   refreshAuthUI();
 }
@@ -1527,14 +1631,14 @@ function refreshAuthUI(){
   }
 }
 
+function syncProfileModal(){setAvatarImage(document.getElementById('bigAvatarImg'),state.avatar);document.getElementById('nicknameInput').value=state.nickname;document.querySelectorAll('.preset-avatars .opt').forEach((o,idx)=>o.classList.toggle('selected',safeAvatar(AVATAR_OPTIONS[idx])===safeAvatar(state.avatar)));state.pendingAvatar='';}
 document.getElementById('heroLoginBtn').addEventListener('click', ()=>{
-  if(state.loggedIn) openModal('profileOverlay');
-  else openModal('loginOverlay');
+  if(state.loggedIn){syncProfileModal();openModal('profileOverlay');}else openModal('loginOverlay');
 });
 
 document.getElementById('openProfileBtn').addEventListener('click', ()=>{
   if(!state.loggedIn) openModal('loginOverlay');
-  else openModal('profileOverlay');
+  else {syncProfileModal();openModal('profileOverlay');}
 });
 
 document.getElementById('googleLoginBtn').addEventListener('click',signInWithGoogle);
@@ -1549,16 +1653,10 @@ document.getElementById('guestLoginBtn').addEventListener('click',()=>{
 document.getElementById('bigAvatarWrap').addEventListener('click', ()=>{
   document.getElementById('avatarUpload').click();
 });
-document.getElementById('avatarUpload').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    document.getElementById('bigAvatarImg').src = ev.target.result;
-    state.pendingAvatar = ev.target.result;
-    document.querySelectorAll('.preset-avatars .opt').forEach(o=>o.classList.remove('selected'));
-  };
-  reader.readAsDataURL(file);
+document.getElementById('avatarUpload').addEventListener('change', async (e)=>{
+  const file=e.target.files[0]; if(!file)return;
+  try{const dataUrl=await compressAvatarFile(file);setAvatarImage(document.getElementById('bigAvatarImg'),dataUrl);state.pendingAvatar=dataUrl;document.querySelectorAll('.preset-avatars .opt').forEach(o=>o.classList.remove('selected'));}
+  catch(err){console.error(err);showToast('❌ Не вдалося завантажити аватар');}
 });
 
 document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
@@ -1566,7 +1664,7 @@ document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
   if(nick.length < 3){ showToast('⚠️ Нік має бути від 3 символів'); return; }
   if(!state.loggedIn || state.loginType==='Guest'){ showToast('🔒 Увійди через Google, щоб зберегти профіль'); return; }
   state.nickname = nick;
-  if(state.pendingAvatar) state.avatar = state.pendingAvatar;
+  if(state.pendingAvatar) state.avatar = safeAvatar(state.pendingAvatar);
   refreshHeader();
   try{ await saveProfileServer(); closeModal('profileOverlay'); showToast('✅ Профіль збережено, ' + nick + '!'); }
   catch(err){ console.error(err); await refreshServerSession(); showToast('❌ Не вдалося зберегти профіль'); }
@@ -1575,5 +1673,54 @@ document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
 // Remote catalog is initialized after all UI handlers are ready.
 loadProducts();
 </script>
+
+<script>
+(function(){
+  const THEME_KEY = 'bzone_theme';
+
+  function getSavedTheme(){
+    const saved = localStorage.getItem(THEME_KEY);
+    if(saved === 'light' || saved === 'dark') return saved;
+    return 'dark';
+  }
+
+  function applyTheme(theme){
+    theme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+
+    const darkBtn = document.getElementById('darkThemeBtn');
+    const lightBtn = document.getElementById('lightThemeBtn');
+
+    if(darkBtn) darkBtn.classList.toggle('active', theme === 'dark');
+    if(lightBtn) lightBtn.classList.toggle('active', theme === 'light');
+  }
+
+  function initTheme(){
+    applyTheme(getSavedTheme());
+
+    const darkBtn = document.getElementById('darkThemeBtn');
+    const lightBtn = document.getElementById('lightThemeBtn');
+
+    if(darkBtn) darkBtn.addEventListener('click', function(){
+      applyTheme('dark');
+    });
+
+    if(lightBtn) lightBtn.addEventListener('click', function(){
+      applyTheme('light');
+    });
+  }
+
+  // Apply immediately to prevent a flash of the wrong theme.
+  applyTheme(getSavedTheme());
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initTheme);
+  }else{
+    initTheme();
+  }
+})();
+</script>
+
 </body>
 </html>
