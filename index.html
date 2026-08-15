@@ -995,6 +995,227 @@ html[data-theme="light"] .theme-btn.active{
   .theme-btn{width:28px;height:28px;font-size:14px}
 }
 
+
+/* ===== B-ZONE ABOUT MODAL ===== */
+.about-modal{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(3,9,18,.72);
+  backdrop-filter:blur(8px);
+}
+.about-modal.open{display:flex}
+.about-dialog{
+  width:min(760px, 100%);
+  max-height:min(88vh, 820px);
+  overflow:auto;
+  position:relative;
+  border:1px solid var(--theme-border);
+  border-radius:28px;
+  background:var(--theme-panel);
+  color:var(--theme-text);
+  box-shadow:var(--theme-shadow);
+  padding:38px 42px 34px;
+  animation:aboutModalIn .22s ease-out;
+}
+@keyframes aboutModalIn{
+  from{opacity:0;transform:translateY(12px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.about-close{
+  position:absolute;
+  top:16px;
+  right:18px;
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  cursor:pointer;
+  background:var(--theme-card);
+  color:var(--theme-text);
+  font-size:25px;
+  line-height:1;
+}
+.about-close:hover{transform:scale(1.04)}
+.about-title{
+  margin:0 46px 12px 0;
+  font-size:clamp(28px,4vw,42px);
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+.about-lead{
+  margin:0 0 28px;
+  color:var(--theme-muted);
+  font-size:17px;
+  line-height:1.65;
+}
+.about-steps{
+  display:grid;
+  gap:12px;
+  margin:0 0 28px;
+}
+.about-step{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  padding:17px 18px;
+  border:1px solid var(--theme-border);
+  border-radius:18px;
+  background:var(--theme-card);
+}
+.about-step-icon{
+  flex:0 0 42px;
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:13px;
+  background:var(--theme-panel-2);
+  font-size:22px;
+}
+.about-step h3{
+  margin:1px 0 5px;
+  font-size:16px;
+}
+.about-step p{
+  margin:0;
+  color:var(--theme-muted);
+  line-height:1.5;
+}
+.about-motivation{
+  padding:22px 22px 20px;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(95,227,208,.13),rgba(95,227,208,.035));
+  border:1px solid rgba(95,227,208,.22);
+}
+.about-motivation h3{
+  margin:0 0 12px;
+  font-size:18px;
+}
+.about-motivation p{
+  margin:0 0 10px;
+  line-height:1.6;
+}
+.about-motivation p:last-child{
+  margin-bottom:0;
+  font-weight:800;
+}
+html[data-theme="light"] .about-modal{
+  background:rgba(26,42,64,.34);
+}
+@media(max-width:600px){
+  .about-modal{padding:12px}
+  .about-dialog{
+    padding:30px 20px 22px;
+    border-radius:22px;
+    max-height:92vh;
+  }
+  .about-step{padding:14px}
+}
+
+
+/* ===== FINAL LOGO + LIGHT THEME CONTRAST FIX ===== */
+
+/* Remove the uneven dark-blue frame/background around the B-ZONE logo.
+   Keep the logo itself visible without a surrounding box. */
+.logo,
+.logo img,
+.brand-logo,
+.brand-logo img,
+.site-logo,
+.site-logo img,
+.bzone-logo,
+.bzone-logo img{
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* If the logo is inside a white/dark wrapper, remove its visual frame too. */
+.logo-wrap,
+.brand,
+.brand-wrap,
+.logo-container{
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Light theme: strengthen contrast for elements that were designed
+   for the dark background. */
+html[data-theme="light"]{
+  --theme-bg:#f4f7fb;
+  --theme-panel:#ffffff;
+  --theme-panel-2:#e8eef6;
+  --theme-text:#142238;
+  --theme-muted:#52647a;
+  --theme-border:rgba(20,34,56,.16);
+  --theme-card:rgba(20,34,56,.065);
+  --theme-shadow:0 14px 36px rgba(20,34,56,.14);
+}
+
+/* Common light-on-dark UI elements become dark enough on light mode. */
+html[data-theme="light"] .icon,
+html[data-theme="light"] .nav-icon,
+html[data-theme="light"] .category-icon,
+html[data-theme="light"] .product-icon,
+html[data-theme="light"] .close,
+html[data-theme="light"] .menu-icon{
+  color:#142238 !important;
+}
+
+/* Borders and text in cards/navigation */
+html[data-theme="light"] .card,
+html[data-theme="light"] .product-card,
+html[data-theme="light"] .modal,
+html[data-theme="light"] .profile-card,
+html[data-theme="light"] .category,
+html[data-theme="light"] .filter,
+html[data-theme="light"] .search-box{
+  border-color:rgba(20,34,56,.15) !important;
+}
+
+html[data-theme="light"] button:not(.theme-btn){
+  border-color:rgba(20,34,56,.14);
+}
+
+/* Keep disabled / secondary text readable */
+html[data-theme="light"] .disabled,
+html[data-theme="light"] [disabled]{
+  opacity:.68;
+}
+
+/* About modal remains crisp in light mode */
+html[data-theme="light"] .about-dialog{
+  background:#ffffff;
+  color:#142238;
+  border-color:rgba(20,34,56,.14);
+  box-shadow:0 18px 50px rgba(20,34,56,.18);
+}
+html[data-theme="light"] .about-step{
+  background:#f5f8fc;
+  border-color:rgba(20,34,56,.12);
+}
+html[data-theme="light"] .about-step-icon{
+  background:#e7eef7;
+  color:#142238;
+}
+html[data-theme="light"] .about-motivation{
+  background:linear-gradient(135deg,rgba(24,125,112,.12),rgba(24,125,112,.045));
+  border-color:rgba(24,125,112,.24);
+}
+
+/* Theme switcher itself */
+html[data-theme="light"] .theme-switcher{
+  background:#e9eff6;
+  border-color:rgba(20,34,56,.14);
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -1718,6 +1939,111 @@ loadProducts();
     document.addEventListener('DOMContentLoaded', initTheme);
   }else{
     initTheme();
+  }
+})();
+</script>
+
+
+<!-- ================= ABOUT B-ZONE MODAL ================= -->
+<div class="about-modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="about-dialog">
+    <button class="about-close" id="aboutCloseBtn" type="button" aria-label="Закрити">×</button>
+
+    <h2 class="about-title" id="aboutTitle">ПРО B-ZONE</h2>
+
+    <p class="about-lead">
+      <strong>B-ZONE — це простір, де активність, участь і досягнення перетворюються на винагороди.</strong><br><br>
+      Беріть участь у доступних активностях, досягайте нових результатів, отримуйте
+      <strong>БОВКОЇНИ 💎</strong> та використовуйте їх для вибору ексклюзивних товарів і винагород у B-ZONE.
+    </p>
+
+    <div class="about-steps">
+      <div class="about-step">
+        <div class="about-step-icon">🏆</div>
+        <div>
+          <h3>БЕРІТЬ УЧАСТЬ</h3>
+          <p>Долучайтеся до доступних активностей і програм. Кожна участь — це можливість рухатися далі.</p>
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-icon">💎</div>
+        <div>
+          <h3>НАКОПИЧУЙТЕ БОВКОЇНИ</h3>
+          <p>Ваші активність та досягнення приносять БОВКОЇНИ. Чим більше ви робите — тим більше можливостей отримуєте.</p>
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-icon">🛍️</div>
+        <div>
+          <h3>ОБИРАЙТЕ ВИНАГОРОДИ</h3>
+          <p>Використовуйте накопичені БОВКОЇНИ для вибору бажаних товарів та ексклюзивних винагород.</p>
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-icon">👤</div>
+        <div>
+          <h3>КЕРУЙТЕ СВОЇМ ПРОФІЛЕМ</h3>
+          <p>Переглядайте свій баланс, налаштовуйте профіль та стежте за історією покупок.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-motivation">
+      <h3>ВАША АКТИВНІСТЬ → ВАШІ ДОСЯГНЕННЯ → ВАШІ ВИНАГОРОДИ</h3>
+      <p>Не зупиняйтеся на досягнутому.</p>
+      <p>Кожен крок, кожна участь і кожен новий результат наближають вас до наступної винагороди.</p>
+      <p>Беріть участь. Досягайте. Накопичуйте. Обирайте.</p>
+      <p>B-ZONE — більше активності, більше можливостей, більше винагород.</p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  function initAboutBZone(){
+    const modal = document.getElementById('aboutModal');
+    const closeBtn = document.getElementById('aboutCloseBtn');
+    const aboutLinks = Array.from(document.querySelectorAll('a[href="#about"]'));
+
+    if(!modal) return;
+
+    function openAbout(event){
+      if(event) event.preventDefault();
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if(closeBtn) closeBtn.focus();
+    }
+
+    function closeAbout(){
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    aboutLinks.forEach(function(link){
+      link.addEventListener('click', openAbout);
+    });
+
+    if(closeBtn) closeBtn.addEventListener('click', closeAbout);
+
+    modal.addEventListener('click', function(event){
+      if(event.target === modal) closeAbout();
+    });
+
+    document.addEventListener('keydown', function(event){
+      if(event.key === 'Escape' && modal.classList.contains('open')){
+        closeAbout();
+      }
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAboutBZone);
+  }else{
+    initAboutBZone();
   }
 })();
 </script>
