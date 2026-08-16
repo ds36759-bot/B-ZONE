@@ -1453,7 +1453,7 @@ function svgAvatar(bg, emoji){ return "data:image/svg+xml;utf8," + encodeURIComp
 const AVATAR_OPTIONS = ["data:image/png;base64,"+AVATAR_ICON_B64,svgAvatar('#1541f0','🦬'),svgAvatar('#c9924f','🤠'),svgAvatar('#5fe3d0','💎'),svgAvatar('#7a4a26','🐾'),svgAvatar('#171d35','🔥')];
 // The standard B-ZONE mascot is already embedded in the HTML. Never require a Drive URL for it.
 const EMBEDDED_MASCOT_SRC = (document.getElementById('mainMascotImg')?.getAttribute('data-default-src') || document.getElementById('mainMascotImg')?.getAttribute('src') || '').trim();
-const DEFAULT_AVATAR = EMBEDDED_MASCOT_SRC || AVATAR_OPTIONS[1];
+const DEFAULT_AVATAR = EMBEDDED_MASCOT_SRC || ('data:image/png;base64,'+AVATAR_ICON_B64);
 function safeAvatar(src){
   const s=String(src||'').trim();
   if(!s || s==='undefined' || s==='null' || /^(default|standard|default-mascot|main-mascot)$/i.test(s)) return DEFAULT_AVATAR;
@@ -1464,7 +1464,45 @@ function setAvatarImage(img,src){
   img.onerror=()=>{img.onerror=null;img.src=DEFAULT_AVATAR;};
   img.src=safeAvatar(src);
 }
-function compressAvatarFile(file,maxSize=384,quality=.78){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('Avatar read failed'));r.onload=()=>{const im=new Image();im.onerror=()=>reject(new Error('Invalid avatar'));im.onload=()=>{const s=Math.min(1,maxSize/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality));};im.src=r.result;};r.readAsDataURL(file);});}
+function compressAvatarFile(file,maxSize=192,quality=.62){
+  return new Promise((resolve,reject)=>{
+    if(!file || !file.type || !file.type.startsWith('image/')){
+      reject(new Error('Непідтримуваний формат зображення')); return;
+    }
+    if(file.size > 10*1024*1024){
+      reject(new Error('Файл завеликий')); return;
+    }
+
+    const r=new FileReader();
+    r.onerror=()=>reject(new Error('Не вдалося прочитати файл'));
+    r.onload=()=>{
+      const im=new Image();
+      im.onerror=()=>reject(new Error('Некоректне зображення'));
+      im.onload=()=>{
+        const scale=Math.min(1,maxSize/Math.max(im.width,im.height));
+        const c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(im.width*scale));
+        c.height=Math.max(1,Math.round(im.height*scale));
+
+        const ctx=c.getContext('2d',{alpha:false});
+        ctx.fillStyle='#ffffff';
+        ctx.fillRect(0,0,c.width,c.height);
+        ctx.drawImage(im,0,0,c.width,c.height);
+
+        const dataUrl=c.toDataURL('image/jpeg',quality);
+
+        // Google Sheets has a cell-size limit. Keep a safe margin.
+        if(dataUrl.length > 45000){
+          reject(new Error('Зображення не вдалося стиснути до допустимого розміру'));
+          return;
+        }
+        resolve(dataUrl);
+      };
+      im.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
 let state={loggedIn:false,nickname:"Guest",avatar:DEFAULT_AVATAR,diamonds:0,participantId:"",googleId:"",loginType:"Guest",sessionToken:"",settings:"",exerciseMascotId:"",useExerciseMascot:false,pendingExerciseMascotId:"",pendingUseExerciseMascot:false};
 
 const grid=document.getElementById('tileGrid'),filterRow=document.getElementById('filterRow'),pagination=document.getElementById('pagination'),catalogStatus=document.getElementById('catalogStatus');
@@ -2165,9 +2203,23 @@ document.getElementById('bigAvatarWrap').addEventListener('click', ()=>{
   document.getElementById('avatarUpload').click();
 });
 document.getElementById('avatarUpload').addEventListener('change', async (e)=>{
-  const file=e.target.files[0]; if(!file)return;
-  try{const dataUrl=await compressAvatarFile(file);setAvatarImage(document.getElementById('bigAvatarImg'),dataUrl);state.pendingAvatar=dataUrl;document.querySelectorAll('.preset-avatars .opt').forEach(o=>o.classList.remove('selected'));}
-  catch(err){console.error(err);showToast('❌ Не вдалося завантажити аватар');}
+  const input=e.target;
+  const file=input.files?.[0];
+  if(!file)return;
+
+  try{
+    const dataUrl=await compressAvatarFile(file);
+    state.pendingAvatar=dataUrl;
+    setAvatarImage(document.getElementById('bigAvatarImg'),dataUrl);
+    document.querySelectorAll('.preset-avatars .opt').forEach(o=>o.classList.remove('selected'));
+    showToast('Фото готове до збереження');
+  }catch(err){
+    console.error('Avatar upload error:',err);
+    showToast('❌ '+(err.message||'Не вдалося завантажити фото'));
+  }finally{
+    // Allows choosing the same file again.
+    input.value='';
+  }
 });
 
 const exerciseToggle=document.getElementById('useExerciseMascot');
