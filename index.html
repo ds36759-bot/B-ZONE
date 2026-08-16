@@ -336,6 +336,23 @@
   .buy-btn:hover{ filter:brightness(1.15); box-shadow:0 4px 0 0 #0c2aa8, 0 0 14px rgba(93,132,255,0.7);}
   .buy-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 0 #0c2aa8;}
 
+  .like-btn{
+    position:absolute; top:10px; right:10px; z-index:3;
+    display:flex; align-items:center; gap:5px;
+    padding:6px 10px; border:1px solid rgba(255,255,255,0.14);
+    border-radius:20px; background:rgba(8,10,19,0.6); backdrop-filter:blur(6px);
+    color:var(--dim); font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px;
+    cursor:pointer; transition:all .15s ease; -webkit-tap-highlight-color:transparent;
+  }
+  .like-btn:hover{ border-color:var(--danger); color:var(--danger); transform:scale(1.05); }
+  .like-btn .heart{ font-size:14px; line-height:1; transform:scale(1); transition:transform .18s cubic-bezier(.4,0,.2,1.6); }
+  .like-btn:active .heart{ transform:scale(0.8); }
+  .like-btn.liked{ background:rgba(255,93,108,0.2); border-color:var(--danger); color:var(--white); }
+  .like-btn.liked .heart{ transform:scale(1.15); }
+  .like-btn .like-count{ min-width:9px; text-align:left; }
+  html[data-theme="light"] .like-btn{ background:rgba(255,255,255,0.75); border-color:rgba(0,0,0,0.1); }
+  html[data-theme="light"] .like-btn.liked{ background:rgba(255,93,108,0.16); }
+
   footer{
     border-top:1px solid rgba(255,255,255,0.06);
     padding:40px 5vw; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
@@ -1387,6 +1404,7 @@ const AUTH_NONCE_KEY = 'bzone_auth_nonce_v2';
 let PRODUCTS = [];
 let currentCategory = "Усе";
 let currentPage = 1;
+let LIKES = { counts: {}, likedByMe: new Set() };
 
 const RARITY_LABEL = {common:"Звичайний", rare:"Рідкісний", epic:"Епічний", legendary:"Легендарний"};
 
@@ -1497,10 +1515,10 @@ async function signInWithGoogle(){
     if(btn.innerHTML.includes('Вхід через Google')) btn.innerHTML=original;
   },30000);
 }
-function applySession(session){state.loggedIn=true;state.sessionToken=String(session.sessionToken||'');localStorage.setItem(SESSION_KEY,state.sessionToken);state.participantId=String(session.participantId||'');state.googleId=String(session.googleId||'');state.nickname=String(session.nickname||'BisonUser');state.avatar=safeAvatar(session.avatar);state.diamonds=Math.max(0,Number(session.diamonds)||0);state.loginType='Google';state.settings=String(session.settings||'');refreshHeader();}
+function applySession(session){state.loggedIn=true;state.sessionToken=String(session.sessionToken||'');localStorage.setItem(SESSION_KEY,state.sessionToken);state.participantId=String(session.participantId||'');state.googleId=String(session.googleId||'');state.nickname=String(session.nickname||'BisonUser');state.avatar=safeAvatar(session.avatar);state.diamonds=Math.max(0,Number(session.diamonds)||0);state.loginType='Google';state.settings=String(session.settings||'');refreshHeader();loadLikes().then(()=>{ if(PRODUCTS.length) renderCatalog(); });}
 async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){applySession(r.session);}else{logoutLocal();}}catch(e){console.error(e);refreshHeader();}}
 async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session)applySession(r.session);else logoutLocal();}catch(e){console.error(e);}}
-function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:''};localStorage.removeItem(SESSION_KEY);refreshHeader();}
+function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:''};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();if(PRODUCTS.length) renderCatalog();}
 async function saveProfileServer(){if(!state.sessionToken)return false;const tx=randomToken();await postForm({action:'saveProfile',session:state.sessionToken,transaction:tx,nickname:state.nickname,avatar:safeAvatar(state.avatar),settings:JSON.stringify({nickname:state.nickname,avatar:safeAvatar(state.avatar)})});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(r.result.session)applySession(r.result.session);return true;}if(r?.pending===false)break;await new Promise(x=>setTimeout(x,350));}throw new Error('Profile save timeout');}
 async function purchaseServer(items){if(!state.sessionToken)throw new Error('Not authenticated');const tx=randomToken();await postForm({action:'purchase',session:state.sessionToken,transaction:tx,items:JSON.stringify(items.map(x=>({productId:x.id,quantity:x.qty})))});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(!r.result.ok)throw new Error(r.result.error||'Purchase failed');if(r.result.session)applySession(r.result.session);return r.result;}await new Promise(x=>setTimeout(x,350));}throw new Error('Purchase timeout');}
 
@@ -1577,7 +1595,16 @@ function renderCatalog(){
   pageItems.forEach(p=>{
     const el=document.createElement('div'); el.className='tile';
     const img=productImage(p);
-    el.innerHTML=`<div class="tile-media">${img?`<img class="product-sprite" src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"><span class="glyph" style="display:none">${escapeHtml(p.glyph)}</span>`:`<span class="glyph">${escapeHtml(p.glyph)}</span>`}</div><h3>${escapeHtml(p.name)}</h3>${p.description?`<div class="desc">${escapeHtml(p.description)}</div>`:''}<div class="tile-footer"><div class="tile-price"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8L12 3L20 8L12 21L4 8Z" fill="#5fe3d0" stroke="#2fb9a6" stroke-width="1"/></svg>${fmt(p.price)}</div><button class="buy-btn" type="button" aria-label="Додати ${escapeHtml(p.name)}">+</button></div>`;
+    const isLiked = LIKES.likedByMe.has(p.id);
+    const likeCount = LIKES.counts[p.id] || 0;
+    el.innerHTML=`<div class="tile-media">${img?`<img class="product-sprite" src="${escapeHtml(img)}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"><span class="glyph" style="display:none">${escapeHtml(p.glyph)}</span>`:`<span class="glyph">${escapeHtml(p.glyph)}</span>`}<button class="like-btn${isLiked?' liked':''}" type="button" data-id="${escapeHtml(p.id)}" aria-label="Лайкнути ${escapeHtml(p.name)}"><span class="heart">${isLiked?'❤️':'🤍'}</span><span class="like-count mono">${fmt(likeCount)}</span></button></div><h3>${escapeHtml(p.name)}</h3>${p.description?`<div class="desc">${escapeHtml(p.description)}</div>`:''}<div class="tile-footer"><div class="tile-price"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8L12 3L20 8L12 21L4 8Z" fill="#5fe3d0" stroke="#2fb9a6" stroke-width="1"/></svg>${fmt(p.price)}</div><button class="buy-btn" type="button" aria-label="Додати ${escapeHtml(p.name)}">+</button></div>`;
+    const likeBtn = el.querySelector('.like-btn');
+    if(likeBtn){
+      likeBtn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        toggleLike(p, likeBtn);
+      });
+    }
     const productImg = el.querySelector('.product-sprite');
     if(productImg){
       productImg.addEventListener('error',()=>{
@@ -1624,6 +1651,75 @@ async function loadProducts(){
     console.error(err);
     PRODUCTS=[]; renderFilters(); renderCatalog();
     setCatalogStatus('Не вдалося завантажити каталог з Google Sheets. Перевір B-ZONE API URL і доступ до Web App.','error');
+  }
+}
+
+// ---------------- Likes ----------------
+async function loadLikes(){
+  try{
+    const params = {action:'likes'};
+    if(state.sessionToken) params.session = state.sessionToken;
+    const r = await apiJsonp(params);
+    if(r?.ok){
+      LIKES.counts = r.counts || {};
+      LIKES.likedByMe = new Set(r.likedByMe || []);
+    }
+  }catch(e){ console.error(e); }
+}
+
+function updateLikeButtonUI(btnEl, productId){
+  if(!btnEl) return;
+  const liked = LIKES.likedByMe.has(productId);
+  btnEl.classList.toggle('liked', liked);
+  const heart = btnEl.querySelector('.heart');
+  if(heart) heart.textContent = liked ? '❤️' : '🤍';
+  const countEl = btnEl.querySelector('.like-count');
+  if(countEl) countEl.textContent = fmt(LIKES.counts[productId] || 0);
+}
+
+async function toggleLike(product, btnEl){
+  if(!state.loggedIn || state.loginType==='Guest'){
+    openModal('loginOverlay');
+    showToast('🔒 Увійди через Google, щоб ставити лайки');
+    return;
+  }
+  if(btnEl && btnEl.dataset.busy === '1') return;
+  if(btnEl) btnEl.dataset.busy = '1';
+
+  const wasLiked = LIKES.likedByMe.has(product.id);
+  const prevCount = LIKES.counts[product.id] || 0;
+
+  // Optimistic UI update
+  if(wasLiked){ LIKES.likedByMe.delete(product.id); } else { LIKES.likedByMe.add(product.id); }
+  LIKES.counts[product.id] = Math.max(0, prevCount + (wasLiked ? -1 : 1));
+  updateLikeButtonUI(btnEl, product.id);
+
+  try{
+    const tx = randomToken();
+    await postForm({action:'toggleLike', session:state.sessionToken, transaction:tx, productId:product.id});
+    let settled = false;
+    for(let i=0;i<20;i++){
+      const r = await apiJsonp({action:'transaction', transaction:tx});
+      if(r?.ok && r.result){
+        if(!r.result.ok) throw new Error(r.result.error || 'Не вдалося оновити лайк');
+        LIKES.counts[product.id] = r.result.count;
+        if(r.result.liked) LIKES.likedByMe.add(product.id); else LIKES.likedByMe.delete(product.id);
+        updateLikeButtonUI(btnEl, product.id);
+        settled = true;
+        break;
+      }
+      await new Promise(x=>setTimeout(x,350));
+    }
+    if(!settled) throw new Error('Час очікування лайка вичерпано');
+  }catch(err){
+    console.error(err);
+    // Revert optimistic update
+    if(wasLiked){ LIKES.likedByMe.add(product.id); } else { LIKES.likedByMe.delete(product.id); }
+    LIKES.counts[product.id] = prevCount;
+    updateLikeButtonUI(btnEl, product.id);
+    showToast('⚠️ Не вдалося оновити лайк');
+  }finally{
+    if(btnEl) delete btnEl.dataset.busy;
   }
 }
 
@@ -1823,7 +1919,7 @@ function refreshHeader(){
 }
 state.diamonds=0;
 refreshHeader();
-restoreSession();
+restoreSession().then(loadLikes).then(()=>{ if(PRODUCTS.length) renderCatalog(); });
 
 function showToast(msg){
   const t = document.getElementById('toast');
