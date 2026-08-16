@@ -1621,7 +1621,48 @@ function applySession(session){
 async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();applyMainMascot();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){applySession(r.session);}else{logoutLocal();}}catch(e){console.error(e);refreshHeader();applyMainMascot();}}
 async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session)applySession(r.session);else logoutLocal();}catch(e){console.error(e);}}
 function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:'',exerciseMascotId:'',useExerciseMascot:false,pendingExerciseMascotId:'',pendingUseExerciseMascot:false};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();renderExerciseMascots();applyMainMascot();if(PRODUCTS.length) renderCatalog();}
-async function saveProfileServer(){if(!state.sessionToken)return false;const tx=randomToken();const settings={nickname:state.nickname,avatar:safeAvatar(state.avatar),exerciseMascotId:String(state.exerciseMascotId||''),useExerciseMascot:!!state.useExerciseMascot};await postForm({action:'saveProfile',session:state.sessionToken,transaction:tx,nickname:state.nickname,avatar:safeAvatar(state.avatar),settings:JSON.stringify(settings)});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(r.result.session)applySession(r.result.session);return true;}if(r?.pending===false)break;await new Promise(x=>setTimeout(x,350));}throw new Error('Profile save timeout');}
+async function saveProfileServer(){
+  if(!state.sessionToken) throw new Error('Сесія користувача відсутня');
+
+  const tx=randomToken();
+  const settings={
+    nickname:state.nickname,
+    avatar:safeAvatar(state.avatar),
+    exerciseMascotId:String(state.exerciseMascotId||''),
+    useExerciseMascot:!!state.useExerciseMascot
+  };
+
+  await postForm({
+    action:'saveProfile',
+    session:state.sessionToken,
+    transaction:tx,
+    nickname:state.nickname,
+    avatar:safeAvatar(state.avatar),
+    settings:JSON.stringify(settings)
+  });
+
+  for(let i=0;i<30;i++){
+    const r=await apiJsonp({action:'transaction',transaction:tx});
+
+    if(r?.ok && r.result){
+      if(r.result.ok===false){
+        throw new Error(r.result.error||'Backend не зберіг профіль');
+      }
+      if(r.result.session){
+        applySession(r.result.session);
+      }
+      return true;
+    }
+
+    if(r?.pending===false){
+      throw new Error(r?.error||'Backend не повернув результат збереження');
+    }
+
+    await new Promise(x=>setTimeout(x,350));
+  }
+
+  throw new Error('Час очікування збереження профілю вичерпано');
+}
 async function purchaseServer(items){if(!state.sessionToken)throw new Error('Not authenticated');const tx=randomToken();await postForm({action:'purchase',session:state.sessionToken,transaction:tx,items:JSON.stringify(items.map(x=>({productId:x.id,quantity:x.qty})))});for(let i=0;i<20;i++){const r=await apiJsonp({action:'transaction',transaction:tx});if(r?.ok&&r.result){if(!r.result.ok)throw new Error(r.result.error||'Purchase failed');if(r.result.session)applySession(r.result.session);return r.result;}await new Promise(x=>setTimeout(x,350));}throw new Error('Purchase timeout');}
 
 function escapeHtml(value){ return String(value ?? '').replace(/[&<>'"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
@@ -2157,8 +2198,23 @@ document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
   state.useExerciseMascot=!!state.pendingUseExerciseMascot;
   refreshHeader();
   applyMainMascot();
-  try{ await saveProfileServer(); closeModal('profileOverlay'); showToast('✅ Профіль збережено, ' + nick + '!'); }
-  catch(err){ console.error(err); await refreshServerSession(); showToast('❌ Не вдалося зберегти профіль'); }
+  const btn=document.getElementById('saveProfileBtn');
+  const original=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<span class="icon">⏳</span> Збереження…';
+
+  try{
+    await saveProfileServer();
+    closeModal('profileOverlay');
+    showToast('✅ Профіль збережено, ' + nick + '!');
+  }catch(err){
+    console.error('Profile save error:',err);
+    await refreshServerSession();
+    showToast('❌ ' + (err.message || 'Не вдалося зберегти профіль'));
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=original;
+  }
 });
 
 // Remote catalog is initialized after all UI handlers are ready.
