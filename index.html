@@ -1233,6 +1233,26 @@ html[data-theme="light"] .theme-switcher{
   border-color:rgba(20,34,56,.14);
 }
 
+/* Fix 1: hero "Ласкаво просимо" badge — cyan-on-dark text is unreadable
+   once the hero background switches to light. Use a darker teal instead. */
+html[data-theme="light"] .hero-eyebrow{
+  color:#0a6b5e;
+  background:rgba(10,107,94,0.10);
+  border-color:rgba(10,107,94,0.35);
+}
+html[data-theme="light"] .hero-eyebrow .dot{
+  background:#0a6b5e;
+  box-shadow:0 0 8px rgba(10,107,94,0.55);
+}
+
+/* Fix 2: footer wordmark is a white PNG glyph meant for dark backgrounds.
+   On the light theme the footer has no dark background of its own, so the
+   logo nearly disappears. Render it as a dark silhouette instead. */
+html[data-theme="light"] footer .bzone-logo{
+  filter:brightness(0) saturate(100%);
+  opacity:0.88;
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
