@@ -1413,7 +1413,7 @@ html[data-theme="light"] footer .bzone-logo{
 
     <div class="profile-stats">
       <div class="stat"><div class="num mono" id="profileDiamonds">0</div><div class="lbl">Діамантів</div></div>
-      <div class="stat"><div class="num mono">7</div><div class="lbl">Покупок</div></div>
+      <div class="stat"><div class="num mono" id="profilePurchases">0</div><div class="lbl">Покупок</div></div>
     </div>
 
     <button class="btn-3d tan block" id="saveProfileBtn"><span class="icon">💾</span> Зберегти профіль</button>
@@ -1618,6 +1618,7 @@ function applySession(session){
   state.nickname=String(session.nickname||'BisonUser');
   state.avatar=safeAvatar(session.avatar);
   state.diamonds=Math.max(0,Number(session.diamonds)||0);
+  state.purchasesCount=Math.max(0,Number(session.purchasesCount)||0);
   state.loginType='Google';
   state.settings=String(session.settings||'');
   const cfg=parseProfileSettings(state.settings);
@@ -1632,7 +1633,7 @@ function applySession(session){
 }
 async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();applyMainMascot();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){applySession(r.session);}else{logoutLocal();}}catch(e){console.error(e);refreshHeader();applyMainMascot();}}
 async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session)applySession(r.session);else logoutLocal();}catch(e){console.error(e);}}
-function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:'',exerciseMascotId:'',useExerciseMascot:false,pendingExerciseMascotId:'',pendingUseExerciseMascot:false};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();renderExerciseMascots();applyMainMascot();if(PRODUCTS.length) renderCatalog();}
+function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,purchasesCount:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:'',exerciseMascotId:'',useExerciseMascot:false,pendingExerciseMascotId:'',pendingUseExerciseMascot:false};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();renderExerciseMascots();applyMainMascot();if(PRODUCTS.length) renderCatalog();}
 async function saveProfileServer(){
   if(!state.sessionToken) throw new Error('Сесія користувача відсутня');
 
@@ -2174,6 +2175,8 @@ function refreshAuthUI(){
 function syncProfileModal(){
   setAvatarImage(document.getElementById('bigAvatarImg'),state.avatar);
   document.getElementById('nicknameInput').value=state.nickname;
+  const purchasesEl=document.getElementById('profilePurchases');
+  if(purchasesEl)purchasesEl.textContent=fmt(Math.max(0,Number(state.purchasesCount)||0));
   state.pendingAvatar='';
   state.pendingExerciseMascotId=state.exerciseMascotId;
   state.pendingUseExerciseMascot=state.useExerciseMascot;
