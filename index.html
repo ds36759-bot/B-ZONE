@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>B-ZONE — фірмовий мерч BOVIOS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -487,7 +487,19 @@
   .toast.show{ transform:translateX(-50%) translateY(0); }
 
   @media (max-width: 980px){
-    nav.center-nav{ display:none; }
+    header{ flex-wrap:wrap; row-gap:10px; }
+    nav.center-nav{
+      display:flex;
+      order:3;
+      flex:0 0 100%;
+      width:100%;
+      justify-content:center;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    nav.center-nav::-webkit-scrollbar{ display:none; }
+    nav.center-nav a{ flex:0 0 auto; white-space:nowrap; }
     .hero{ grid-template-columns:1fr; text-align:center; padding-top:36px; }
     .hero p.lede{ margin-left:auto; margin-right:auto; }
     .hero-actions{ justify-content:center; }
@@ -658,7 +670,7 @@ button,a,.chip,.tile,.avatar-btn,.diamond-pill,.cart-header-btn{touch-action:man
 /* Tablet */
 @media (max-width:900px){
   header{min-height:72px;}
-  nav.center-nav{display:none;}
+  nav.center-nav{display:flex;}
 
   .hero{
     grid-template-columns:1fr;
@@ -699,6 +711,19 @@ button,a,.chip,.tile,.avatar-btn,.diamond-pill,.cart-header-btn{touch-action:man
   .brand-text .sub{display:none;}
 
   .header-right{gap:7px;flex-shrink:0;}
+  nav.center-nav{
+    gap:4px;
+    padding:4px;
+    justify-content:flex-start;
+  }
+  nav.center-nav a{
+    padding:8px 10px;
+    font-size:12px;
+    min-height:38px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
   .diamond-pill{
     padding:7px 9px;
     min-height:42px;
@@ -832,6 +857,7 @@ button,a,.chip,.tile,.avatar-btn,.diamond-pill,.cart-header-btn{touch-action:man
 
 /* Very narrow phones: one product per row prevents cramped cards */
 @media (max-width:420px){
+  nav.center-nav a{padding:7px 9px;font-size:11.5px;}
   .brand .bzone-logo{width:86px;}
   .diamond-pill{padding:6px 8px;}
   .diamond-pill .count{font-size:11px;}
@@ -1713,6 +1739,147 @@ html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;bor
   .metric-field.full,.challenge-composer-grid .full{grid-column:auto}
   .challenge-participant-list{grid-template-columns:1fr}
   .challenge-composer-actions{flex-direction:column-reverse}
+}
+
+
+
+/* =========================================================
+   B-ZONE v14 — MOBILE MODAL HARDENING
+   iPhone Safari / Android Chrome / small-screen touch UI
+   ========================================================= */
+
+/* Both modal scrollers: smooth native momentum + no scroll chaining */
+.about-dialog,
+.challenge-modal{
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;
+}
+
+/* Keep close controls reachable while the modal itself scrolls. */
+.about-close,
+.challenge-close{
+  position:sticky;
+  top:10px;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-left:auto;
+  margin-bottom:-40px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Phones / compact tablets */
+@media (max-width:600px){
+  .about-modal{
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  .about-dialog{
+    width:100%;
+    max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding:
+      20px
+      max(18px, env(safe-area-inset-right))
+      max(22px, calc(env(safe-area-inset-bottom) + 12px))
+      max(18px, env(safe-area-inset-left));
+    border-radius:20px;
+  }
+
+  .about-close{
+    top:0;
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+  }
+
+  .about-title{
+    margin-right:48px;
+    font-size:clamp(26px,8vw,36px);
+  }
+
+  .about-lead{
+    font-size:15px;
+    line-height:1.58;
+  }
+
+  .about-step{
+    gap:12px;
+    padding:13px;
+  }
+}
+
+/* Challenge modal: safe-area aware full-screen sheet on phones */
+@media (max-width:560px){
+  .challenge-overlay{
+    padding:0;
+    align-items:stretch;
+  }
+
+  .challenge-modal{
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    border-radius:0;
+    border-left:0;
+    border-right:0;
+    padding:
+      max(14px, calc(env(safe-area-inset-top) + 8px))
+      max(14px, env(safe-area-inset-right))
+      max(20px, calc(env(safe-area-inset-bottom) + 12px))
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .challenge-close{
+    top:0;
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+  }
+
+  .challenge-head{
+    padding-right:52px;
+    gap:12px;
+  }
+
+  .challenge-refresh,
+  .challenge-primary-btn,
+  .challenge-secondary-btn,
+  .challenge-danger-btn{
+    min-height:44px;
+    touch-action:manipulation;
+  }
+
+  .challenge-select,
+  .challenge-input{
+    font-size:16px; /* prevents automatic iOS Safari zoom on focus */
+  }
+}
+
+/* Very short landscape phones: preserve usable modal viewport */
+@media (max-height:520px) and (orientation:landscape){
+  .about-modal{
+    align-items:stretch;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .about-dialog{
+    max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .challenge-modal{
+    max-height:100dvh;
+  }
 }
 
 </style>
