@@ -1259,6 +1259,462 @@ html[data-theme="light"] footer .bzone-logo{
   opacity:0.88;
 }
 
+
+/* ===== B-ZONE CHALLENGES ===== */
+.challenge-nav-link{
+  position:relative;
+  display:inline-flex!important;
+  align-items:center;
+  gap:7px;
+}
+.challenge-nav-badge{
+  min-width:19px;
+  height:19px;
+  padding:0 5px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--danger);
+  color:#fff;
+  font:800 10px/1 'JetBrains Mono',monospace;
+  box-shadow:0 0 0 2px rgba(255,93,108,.18),0 0 14px rgba(255,93,108,.55);
+}
+.challenge-nav-link.has-alert{
+  color:#fff!important;
+  background:linear-gradient(180deg,#ff7a86,#df3c50)!important;
+  box-shadow:0 0 0 3px rgba(255,93,108,.18),0 0 22px rgba(255,93,108,.45);
+  animation:challengeAlertPulse 1.6s ease-in-out infinite;
+}
+@keyframes challengeAlertPulse{
+  0%,100%{transform:translateY(0);filter:brightness(1)}
+  50%{transform:translateY(-1px);filter:brightness(1.12)}
+}
+
+.challenge-overlay{
+  position:fixed;
+  inset:0;
+  z-index:10020;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(3,6,14,.80);
+  backdrop-filter:blur(10px);
+}
+.challenge-overlay.open{display:flex}
+.challenge-modal{
+  width:min(1120px,100%);
+  max-height:calc(100dvh - 40px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  position:relative;
+  border:1px solid var(--panel-edge);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(58,99,255,.15),transparent 32%),
+    linear-gradient(160deg,var(--panel-2),var(--panel));
+  box-shadow:0 34px 80px -24px rgba(0,0,0,.78);
+  padding:28px;
+}
+.challenge-close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  border:1px solid var(--panel-edge);
+  background:rgba(255,255,255,.05);
+  color:var(--white);
+  cursor:pointer;
+  font-size:20px;
+}
+.challenge-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding-right:46px;
+  margin-bottom:20px;
+}
+.challenge-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:var(--cyan);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+.challenge-head h2{font-size:clamp(24px,3vw,34px);margin:0 0 6px}
+.challenge-head p{color:var(--dim);font-size:13px;line-height:1.5}
+.challenge-refresh{
+  flex:0 0 auto;
+  padding:10px 13px;
+  border-radius:12px;
+  border:1px solid var(--panel-edge);
+  background:rgba(255,255,255,.04);
+  color:var(--white);
+  cursor:pointer;
+  font-weight:700;
+}
+.challenge-loading{
+  min-height:260px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--dim);
+  font-weight:700;
+}
+.challenge-top-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(300px,.75fr);
+  gap:16px;
+}
+.challenge-card{
+  border:1px solid var(--panel-edge);
+  border-radius:20px;
+  background:rgba(8,10,19,.40);
+  padding:18px;
+  min-width:0;
+}
+.challenge-card h3{
+  font-size:15px;
+  margin:0 0 14px;
+}
+.challenge-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.challenge-card-head h3{margin:0}
+.challenge-select,
+.challenge-input{
+  width:100%;
+  min-height:44px;
+  border:1px solid var(--panel-edge);
+  border-radius:12px;
+  background:var(--void);
+  color:var(--white);
+  padding:10px 12px;
+  outline:none;
+  font:500 13px 'Inter',sans-serif;
+}
+.challenge-select:focus,
+.challenge-input:focus{
+  border-color:var(--blue-glow);
+  box-shadow:0 0 0 3px rgba(93,132,255,.16);
+}
+.challenge-chart-select{
+  width:min(360px,100%);
+}
+.challenge-chart{
+  min-height:300px;
+  border-radius:16px;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+    rgba(4,6,13,.34);
+  background-size:34px 34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.challenge-chart svg{display:block;width:100%;height:auto;min-height:280px}
+.challenge-chart-empty{
+  max-width:420px;
+  padding:28px;
+  text-align:center;
+  color:var(--dim);
+  line-height:1.55;
+}
+.challenge-legend{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:12px;
+  min-height:18px;
+  color:var(--dim);
+  font-size:12px;
+}
+.challenge-legend-item{display:flex;align-items:center;gap:7px}
+.challenge-legend-dot{width:9px;height:9px;border-radius:50%;background:var(--blue-glow)}
+.challenge-legend-item.opponent .challenge-legend-dot{background:var(--cyan)}
+.metric-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.metric-field{display:flex;flex-direction:column;gap:7px}
+.metric-field.full{grid-column:1/-1}
+.metric-field label{
+  color:var(--dim);
+  font-size:11px;
+  font-weight:700;
+}
+.metric-date{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:-4px 0 14px;
+  padding:10px 12px;
+  border:1px solid rgba(95,227,208,.18);
+  border-radius:12px;
+  background:rgba(95,227,208,.06);
+  font-size:12px;
+}
+.metric-date strong{color:var(--cyan)}
+.challenge-actions-stack{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.challenge-primary-btn,
+.challenge-secondary-btn,
+.challenge-danger-btn{
+  min-height:44px;
+  border:0;
+  border-radius:12px;
+  cursor:pointer;
+  font-family:'Poppins',sans-serif;
+  font-weight:800;
+  font-size:13px;
+  padding:11px 15px;
+}
+.challenge-primary-btn{
+  color:#fff;
+  background:linear-gradient(180deg,var(--blue-2),var(--blue));
+  box-shadow:0 4px 0 #0c2aa8;
+}
+.challenge-secondary-btn{
+  color:var(--white);
+  background:linear-gradient(180deg,#252d49,#171d35);
+  box-shadow:0 4px 0 rgba(0,0,0,.45);
+}
+.challenge-danger-btn{
+  color:#fff;
+  background:linear-gradient(180deg,#ff7380,#d83b4c);
+  box-shadow:0 4px 0 #8f2030;
+}
+.challenge-primary-btn:disabled,
+.challenge-secondary-btn:disabled,
+.challenge-danger-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.challenge-composer{
+  margin-top:16px;
+  border:1px solid rgba(93,132,255,.35);
+  border-radius:20px;
+  background:rgba(21,65,240,.07);
+  padding:18px;
+}
+.challenge-composer[hidden]{display:none}
+.challenge-composer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.challenge-composer-grid .full{grid-column:1/-1}
+.challenge-participant-search{margin-top:12px}
+.challenge-participant-list{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  max-height:230px;
+  overflow:auto;
+  padding-right:3px;
+}
+.challenge-person{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  padding:9px;
+  border-radius:13px;
+  border:1px solid var(--panel-edge);
+  background:var(--void);
+  color:var(--white);
+  cursor:pointer;
+  text-align:left;
+}
+.challenge-person:hover{border-color:var(--blue-glow)}
+.challenge-person.selected{
+  border-color:var(--cyan);
+  background:rgba(95,227,208,.08);
+  box-shadow:0 0 0 2px rgba(95,227,208,.14);
+}
+.challenge-person img,
+.challenge-avatar{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  object-fit:cover;
+  flex:0 0 auto;
+  background:var(--panel-2);
+}
+.challenge-person span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+  font-weight:700;
+}
+.challenge-composer-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:14px;
+}
+.challenge-lists-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:16px;
+}
+.challenge-list{
+  display:grid;
+  gap:9px;
+}
+.challenge-empty{
+  padding:18px;
+  border-radius:14px;
+  border:1px dashed var(--panel-edge);
+  color:var(--dim);
+  font-size:12px;
+  text-align:center;
+}
+.challenge-item{
+  display:flex;
+  gap:11px;
+  align-items:flex-start;
+  padding:12px;
+  border:1px solid var(--panel-edge);
+  border-radius:15px;
+  background:rgba(255,255,255,.025);
+}
+.challenge-item-main{flex:1;min-width:0}
+.challenge-item-title{
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:4px;
+}
+.challenge-item-meta{
+  color:var(--dim);
+  font-size:11px;
+  line-height:1.45;
+}
+.challenge-item-actions{
+  display:flex;
+  gap:7px;
+  margin-top:9px;
+  flex-wrap:wrap;
+}
+.challenge-item-actions button{
+  min-height:34px;
+  padding:7px 10px;
+  border-radius:9px;
+  border:0;
+  cursor:pointer;
+  font-weight:800;
+  font-size:11px;
+}
+.challenge-accept{background:var(--cyan);color:#062a25}
+.challenge-decline{background:rgba(255,93,108,.18);color:#ff8b96;border:1px solid rgba(255,93,108,.35)!important}
+.challenge-status{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:4px 8px;
+  font:800 9px/1 'Inter',sans-serif;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.challenge-status.pending{background:rgba(201,146,79,.16);color:var(--tan)}
+.challenge-status.active{background:rgba(95,227,208,.14);color:var(--cyan)}
+.challenge-status.completed{background:rgba(93,132,255,.16);color:var(--blue-glow)}
+.challenge-status.declined{background:rgba(255,93,108,.13);color:#ff8b96}
+.challenge-messages-card{margin-top:16px}
+.challenge-message-list{
+  display:grid;
+  gap:8px;
+  max-height:220px;
+  overflow:auto;
+}
+.challenge-message{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--panel-edge);
+  background:rgba(255,255,255,.025);
+}
+.challenge-message.unread{
+  border-color:rgba(255,93,108,.42);
+  background:rgba(255,93,108,.07);
+}
+.challenge-message-text{font-size:12px;line-height:1.5}
+.challenge-message-time{font-size:10px;color:var(--dim);margin-top:4px}
+.challenge-note{
+  color:var(--dim);
+  font-size:10.5px;
+  line-height:1.45;
+  margin-top:10px;
+}
+html[data-theme="light"] .challenge-modal{
+  background:
+    radial-gradient(circle at 85% 0%,rgba(58,99,255,.10),transparent 32%),
+    #fff;
+  color:#142238;
+  border-color:rgba(20,34,56,.14);
+  box-shadow:0 24px 68px rgba(20,34,56,.20);
+}
+html[data-theme="light"] .challenge-card,
+html[data-theme="light"] .challenge-composer{
+  background:#f7f9fc;
+  border-color:rgba(20,34,56,.13);
+}
+html[data-theme="light"] .challenge-chart{background-color:#f4f7fb}
+html[data-theme="light"] .challenge-select,
+html[data-theme="light"] .challenge-input,
+html[data-theme="light"] .challenge-person{
+  background:#fff;
+  color:#142238;
+  border-color:rgba(20,34,56,.15);
+}
+html[data-theme="light"] .challenge-secondary-btn{
+  background:#e8eef7;
+  color:#142238;
+}
+html[data-theme="light"] .challenge-item,
+html[data-theme="light"] .challenge-message{
+  background:#fff;
+  border-color:rgba(20,34,56,.13);
+}
+html[data-theme="light"] .challenge-close,
+html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;border-color:rgba(20,34,56,.13)}
+@media(max-width:900px){
+  .challenge-modal{padding:22px 16px}
+  .challenge-top-grid,.challenge-lists-grid{grid-template-columns:1fr}
+  .challenge-participant-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .challenge-overlay{padding:0}
+  .challenge-modal{max-height:100dvh;height:100dvh;border-radius:0}
+  .challenge-head{flex-direction:column}
+  .challenge-card-head{align-items:flex-start;flex-direction:column}
+  .challenge-chart-select{width:100%}
+  .metric-grid,.challenge-composer-grid{grid-template-columns:1fr}
+  .metric-field.full,.challenge-composer-grid .full{grid-column:auto}
+  .challenge-participant-list{grid-template-columns:1fr}
+  .challenge-composer-actions{flex-direction:column-reverse}
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -1278,6 +1734,10 @@ html[data-theme="light"] footer .bzone-logo{
   <nav class="center-nav">
     <a href="#" class="active">Магазин</a>
     <a href="#about">Про B-zone</a>
+    <a href="#challenges" id="challengesNavBtn" class="challenge-nav-link">
+      Змагання та виклики
+      <span class="challenge-nav-badge" id="challengeNavBadge" hidden>0</span>
+    </a>
   </nav>
 
   <div class="header-right">
@@ -1434,6 +1894,128 @@ html[data-theme="light"] footer .bzone-logo{
     <div id="cartContent"></div>
   </div>
 </div>
+
+
+<!-- ================= CHALLENGES MODAL ================= -->
+<div class="challenge-overlay" id="challengeOverlay" role="dialog" aria-modal="true" aria-labelledby="challengeTitle">
+  <div class="challenge-modal">
+    <button class="challenge-close" id="challengeCloseBtn" type="button" aria-label="Закрити">×</button>
+
+    <div class="challenge-head">
+      <div>
+        <div class="challenge-kicker">🏆 B-ZONE CHALLENGE MODE</div>
+        <h2 id="challengeTitle">ЗМАГАННЯ ТА ВИКЛИКИ</h2>
+        <p id="challengeSubtitle">Щоденні метрики, персональні виклики та спільний прогрес.</p>
+      </div>
+      <button class="challenge-refresh" id="refreshChallengesBtn" type="button">↻ Оновити</button>
+    </div>
+
+    <div id="challengeLoading" class="challenge-loading">Завантаження даних…</div>
+
+    <div id="challengeContent" hidden>
+      <div class="challenge-top-grid">
+        <section class="challenge-card">
+          <div class="challenge-card-head">
+            <h3>📈 Графік прогресу</h3>
+            <select id="challengeChartSelector" class="challenge-select challenge-chart-select" aria-label="Оберіть графік"></select>
+          </div>
+          <div class="challenge-chart" id="challengeChart"></div>
+          <div class="challenge-legend" id="challengeLegend"></div>
+        </section>
+
+        <section class="challenge-card">
+          <h3>🎯 Сьогоднішні метрики</h3>
+          <div class="metric-date">
+            <span>Дата за Києвом</span>
+            <strong id="challengeToday">—</strong>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric-field">
+              <label for="metricWeight">Поточна вага, кг</label>
+              <input class="challenge-input" id="metricWeight" type="number" min="20" max="500" step="0.1" inputmode="decimal" placeholder="Напр. 72.4">
+            </div>
+            <div class="metric-field">
+              <label for="metricWaist">Окружність талії, см</label>
+              <input class="challenge-input" id="metricWaist" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="Напр. 84">
+            </div>
+            <div class="metric-field full">
+              <label for="metricExerciseName">Назва вправи</label>
+              <input class="challenge-input" id="metricExerciseName" type="text" maxlength="80" placeholder="Напр. присідання">
+            </div>
+            <div class="metric-field full">
+              <label for="metricExerciseCount">Кількість вправ</label>
+              <input class="challenge-input" id="metricExerciseCount" type="number" min="0" step="1" inputmode="numeric" placeholder="Напр. 50">
+            </div>
+          </div>
+
+          <div class="challenge-actions-stack">
+            <button class="challenge-primary-btn" id="saveDailyMetricsBtn" type="button">💾 Зберегти дані за сьогодні</button>
+            <button class="challenge-secondary-btn" id="openChallengeComposerBtn" type="button">⚔️ Кинути виклик</button>
+          </div>
+
+          <div class="challenge-note">
+            Протягом однієї київської доби дані перезаписуються у тому самому рядку. Після 00:00 починається новий день.
+          </div>
+        </section>
+      </div>
+
+      <section class="challenge-composer" id="challengeComposer" hidden>
+        <div class="challenge-card-head">
+          <h3>⚔️ Новий виклик</h3>
+          <span class="challenge-item-meta" id="selectedOpponentLabel">Оберіть опонента</span>
+        </div>
+
+        <div class="challenge-composer-grid">
+          <div class="metric-field">
+            <label for="challengeMetricType">Тип виклику</label>
+            <select id="challengeMetricType" class="challenge-select">
+              <option value="weight">Вага</option>
+              <option value="waist">Окружність талії</option>
+              <option value="exercise">Кількість вправ</option>
+            </select>
+          </div>
+
+          <div class="metric-field">
+            <label for="challengePeriodDays">Період, днів</label>
+            <input id="challengePeriodDays" class="challenge-input" type="number" min="7" step="1" value="7">
+          </div>
+
+          <div class="metric-field full" id="challengeExerciseNameWrap" hidden>
+            <label for="challengeExerciseName">Назва вправи для виклику</label>
+            <input id="challengeExerciseName" class="challenge-input" type="text" maxlength="80" placeholder="Напр. присідання">
+          </div>
+        </div>
+
+        <input id="challengeParticipantSearch" class="challenge-input challenge-participant-search" type="search" placeholder="Пошук учасника за ніком…">
+        <div class="challenge-participant-list" id="challengeParticipantList"></div>
+
+        <div class="challenge-composer-actions">
+          <button class="challenge-secondary-btn" id="cancelChallengeBtn" type="button">Скасувати</button>
+          <button class="challenge-primary-btn" id="confirmChallengeBtn" type="button" disabled>Підтвердити виклик</button>
+        </div>
+      </section>
+
+      <div class="challenge-lists-grid">
+        <section class="challenge-card">
+          <h3>🔔 Вхідні виклики</h3>
+          <div class="challenge-list" id="incomingChallengeList"></div>
+        </section>
+
+        <section class="challenge-card">
+          <h3>🏁 Мої виклики</h3>
+          <div class="challenge-list" id="myChallengeList"></div>
+        </section>
+      </div>
+
+      <section class="challenge-card challenge-messages-card">
+        <h3>💬 Повідомлення</h3>
+        <div class="challenge-message-list" id="challengeMessageList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
 
 <div class="toast" id="toast">✅ Готово!</div>
 
@@ -1662,10 +2244,11 @@ function applySession(session){
   renderExerciseMascots();
   applyMainMascot();
   loadLikes().then(()=>{ if(PRODUCTS.length) renderCatalog(); });
+  if(typeof refreshChallengeNotifications==='function') refreshChallengeNotifications();
 }
 async function restoreSession(){const token=localStorage.getItem(SESSION_KEY);if(!token){state.diamonds=0;refreshHeader();applyMainMascot();return;}try{const r=await apiJsonp({action:'session',session:token});if(r?.ok&&r.session){applySession(r.session);}else{logoutLocal();}}catch(e){console.error(e);refreshHeader();applyMainMascot();}}
 async function refreshServerSession(){if(!state.loggedIn||state.loginType==='Guest'||!state.sessionToken){state.diamonds=0;refreshHeader();return;}try{const r=await apiJsonp({action:'session',session:state.sessionToken});if(r?.ok&&r.session)applySession(r.session);else logoutLocal();}catch(e){console.error(e);}}
-function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,purchasesCount:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:'',exerciseMascotId:'',useExerciseMascot:false,pendingExerciseMascotId:'',pendingUseExerciseMascot:false};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();renderExerciseMascots();applyMainMascot();if(PRODUCTS.length) renderCatalog();}
+function logoutLocal(){state={loggedIn:false,nickname:'Guest',avatar:DEFAULT_AVATAR,diamonds:0,purchasesCount:0,participantId:'',googleId:'',loginType:'Guest',sessionToken:'',settings:'',exerciseMascotId:'',useExerciseMascot:false,pendingExerciseMascotId:'',pendingUseExerciseMascot:false};localStorage.removeItem(SESSION_KEY);LIKES.likedByMe=new Set();refreshHeader();renderExerciseMascots();applyMainMascot();if(typeof clearChallengeNotifications==='function') clearChallengeNotifications();if(PRODUCTS.length) renderCatalog();}
 async function saveProfileServer(){
   if(!state.sessionToken) throw new Error('Сесія користувача відсутня');
 
@@ -2291,6 +2874,528 @@ document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
 
 // Remote catalog is initialized after all UI handlers are ready.
 loadProducts();
+</script>
+
+
+<script>
+// ---------------- Challenges ----------------
+const CHALLENGE_STATE = {
+  dashboard:null,
+  selectedOpponentId:'',
+  chartSelection:'',
+  polling:false
+};
+
+function challengeMetricLabel(metricType, exerciseName){
+  if(metricType==='weight') return 'Вага';
+  if(metricType==='waist') return 'Окружність талії';
+  if(metricType==='exercise') return exerciseName ? `Вправа: ${exerciseName}` : 'Кількість вправ';
+  return 'Метрика';
+}
+
+function challengeUnit(metricType){
+  if(metricType==='weight') return 'кг';
+  if(metricType==='waist') return 'см';
+  return '';
+}
+
+function challengeStatusLabel(status){
+  const s=String(status||'').toLowerCase();
+  if(s==='pending') return 'Очікує';
+  if(s==='active') return 'Активний';
+  if(s==='completed') return 'Завершено';
+  if(s==='declined') return 'Відхилено';
+  return status||'—';
+}
+
+function challengeStatusClass(status){
+  const s=String(status||'').toLowerCase();
+  return ['pending','active','completed','declined'].includes(s) ? s : 'pending';
+}
+
+function formatChallengeDateTime(value){
+  if(!value) return '';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+function clearChallengeNotifications(){
+  const nav=document.getElementById('challengesNavBtn');
+  const badge=document.getElementById('challengeNavBadge');
+  if(nav) nav.classList.remove('has-alert');
+  if(badge){ badge.hidden=true; badge.textContent='0'; }
+}
+
+function setChallengeNotificationBadge(count){
+  const n=Math.max(0,Number(count)||0);
+  const nav=document.getElementById('challengesNavBtn');
+  const badge=document.getElementById('challengeNavBadge');
+  if(nav) nav.classList.toggle('has-alert',n>0);
+  if(badge){
+    badge.hidden=n<=0;
+    badge.textContent=n>99?'99+':String(n);
+  }
+}
+
+async function refreshChallengeNotifications(){
+  if(CHALLENGE_STATE.polling) return;
+  if(!state.loggedIn || state.loginType==='Guest' || !state.sessionToken){
+    clearChallengeNotifications();
+    return;
+  }
+  CHALLENGE_STATE.polling=true;
+  try{
+    const r=await apiJsonp({action:'challengeNotifications',session:state.sessionToken});
+    if(r?.ok) setChallengeNotificationBadge(r.unreadCount||0);
+  }catch(err){
+    console.error('Challenge notification error:',err);
+  }finally{
+    CHALLENGE_STATE.polling=false;
+  }
+}
+
+async function challengePost(action,payload={}){
+  if(!state.sessionToken) throw new Error('Увійдіть через Google');
+  const transaction=randomToken();
+  await postForm({action,session:state.sessionToken,transaction,...payload});
+  for(let i=0;i<30;i++){
+    const r=await apiJsonp({action:'transaction',transaction});
+    if(r?.ok && r.result){
+      if(r.result.ok===false) throw new Error(r.result.error||'Операцію не виконано');
+      return r.result;
+    }
+    await new Promise(resolve=>setTimeout(resolve,350));
+  }
+  throw new Error('Час очікування операції вичерпано');
+}
+
+function openChallengesModal(){
+  if(!state.loggedIn || state.loginType==='Guest'){
+    openModal('loginOverlay');
+    showToast('🔒 Увійди через Google, щоб брати участь у викликах');
+    return;
+  }
+  const ov=document.getElementById('challengeOverlay');
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  loadChallengeDashboard(true);
+}
+
+function closeChallengesModal(){
+  const ov=document.getElementById('challengeOverlay');
+  ov.classList.remove('open');
+  document.body.style.overflow='';
+  document.getElementById('challengeComposer').hidden=true;
+}
+
+async function loadChallengeDashboard(markRead=false){
+  const loading=document.getElementById('challengeLoading');
+  const content=document.getElementById('challengeContent');
+  loading.style.display='flex';
+  loading.textContent='Завантаження даних…';
+  content.hidden=true;
+
+  try{
+    const r=await apiJsonp({action:'challengeDashboard',session:state.sessionToken});
+    if(!r?.ok) throw new Error(r?.error||'Не вдалося завантажити виклики');
+    CHALLENGE_STATE.dashboard=r;
+    renderChallengeDashboard();
+    content.hidden=false;
+    loading.style.display='none';
+
+    if(markRead && Number(r.unreadCount||0)>0){
+      try{
+        await challengePost('markChallengeMessagesRead');
+        setChallengeNotificationBadge(0);
+        if(CHALLENGE_STATE.dashboard){
+          CHALLENGE_STATE.dashboard.messages=(CHALLENGE_STATE.dashboard.messages||[]).map(m=>({...m,isRead:true}));
+          CHALLENGE_STATE.dashboard.unreadCount=0;
+          renderChallengeMessages();
+        }
+      }catch(err){
+        console.error('Mark challenge messages read error:',err);
+      }
+    }else{
+      setChallengeNotificationBadge(r.unreadCount||0);
+    }
+  }catch(err){
+    console.error(err);
+    loading.style.display='flex';
+    loading.textContent='⚠️ '+(err.message||'Не вдалося завантажити дані');
+  }
+}
+
+function renderChallengeDashboard(){
+  const d=CHALLENGE_STATE.dashboard;
+  if(!d) return;
+  document.getElementById('challengeToday').textContent=d.today||'—';
+  document.getElementById('challengeSubtitle').textContent=
+    `Дата за Києвом: ${d.today||'—'} • метрики можна оновлювати необмежено протягом дня`;
+
+  const t=d.todayMetrics||{};
+  document.getElementById('metricWeight').value=t.weight??'';
+  document.getElementById('metricWaist').value=t.waist??'';
+  document.getElementById('metricExerciseName').value=t.exerciseName||'';
+  document.getElementById('metricExerciseCount').value=t.exerciseCount??'';
+
+  renderChallengeParticipants();
+  renderIncomingChallenges();
+  renderMyChallenges();
+  renderChallengeMessages();
+  renderChallengeChartSelector();
+}
+
+function renderChallengeParticipants(){
+  const d=CHALLENGE_STATE.dashboard;
+  const list=document.getElementById('challengeParticipantList');
+  const search=String(document.getElementById('challengeParticipantSearch').value||'').trim().toLowerCase();
+  const rows=(d?.participants||[]).filter(p=>String(p.nickname||'').toLowerCase().includes(search));
+
+  if(!rows.length){
+    list.innerHTML='<div class="challenge-empty" style="grid-column:1/-1">Учасників не знайдено.</div>';
+    return;
+  }
+
+  list.innerHTML=rows.map(p=>`
+    <button type="button" class="challenge-person${p.participantId===CHALLENGE_STATE.selectedOpponentId?' selected':''}" data-opponent-id="${escapeHtml(p.participantId)}">
+      <img src="${escapeHtml(safeAvatar(p.avatar))}" alt="${escapeHtml(p.nickname)}">
+      <span>${escapeHtml(p.nickname||'BisonUser')}</span>
+    </button>
+  `).join('');
+
+  list.querySelectorAll('[data-opponent-id]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      CHALLENGE_STATE.selectedOpponentId=btn.dataset.opponentId||'';
+      const p=(d.participants||[]).find(x=>x.participantId===CHALLENGE_STATE.selectedOpponentId);
+      document.getElementById('selectedOpponentLabel').textContent=p?`Опонент: ${p.nickname}`:'Оберіть опонента';
+      document.getElementById('confirmChallengeBtn').disabled=!p;
+      renderChallengeParticipants();
+    });
+  });
+}
+
+function challengeOtherParticipant(c){
+  if(!c) return {nickname:'Опонент',avatar:''};
+  if(c.challengerId===state.participantId){
+    return {nickname:c.opponentNickname||'Опонент',avatar:c.opponentAvatar||''};
+  }
+  return {nickname:c.challengerNickname||'Опонент',avatar:c.challengerAvatar||''};
+}
+
+function challengeCardMarkup(c,withActions=false){
+  const other=challengeOtherParticipant(c);
+  const metric=challengeMetricLabel(c.metricType,c.exerciseName);
+  const dates=c.startDate && c.endDate ? `${c.startDate} → ${c.endDate}` : `${c.periodDays} днів`;
+  return `
+    <div class="challenge-item" data-challenge-id="${escapeHtml(c.challengeId)}">
+      <img class="challenge-avatar" src="${escapeHtml(safeAvatar(other.avatar))}" alt="${escapeHtml(other.nickname)}">
+      <div class="challenge-item-main">
+        <div class="challenge-item-title">${escapeHtml(other.nickname)} • ${escapeHtml(metric)}</div>
+        <div class="challenge-item-meta">${escapeHtml(dates)}</div>
+        <span class="challenge-status ${challengeStatusClass(c.status)}">${escapeHtml(challengeStatusLabel(c.status))}</span>
+        ${withActions?`
+          <div class="challenge-item-actions">
+            <button class="challenge-accept" data-challenge-accept="${escapeHtml(c.challengeId)}">✓ Прийняти</button>
+            <button class="challenge-decline" data-challenge-decline="${escapeHtml(c.challengeId)}">Відхилити</button>
+          </div>`:''}
+      </div>
+    </div>`;
+}
+
+function renderIncomingChallenges(){
+  const d=CHALLENGE_STATE.dashboard;
+  const box=document.getElementById('incomingChallengeList');
+  const incoming=(d?.challenges||[]).filter(c=>
+    c.opponentId===state.participantId &&
+    String(c.status||'').toLowerCase()==='pending'
+  );
+  if(!incoming.length){
+    box.innerHTML='<div class="challenge-empty">Нових вхідних викликів немає.</div>';
+    return;
+  }
+  box.innerHTML=incoming.map(c=>challengeCardMarkup(c,true)).join('');
+  box.querySelectorAll('[data-challenge-accept]').forEach(btn=>{
+    btn.addEventListener('click',()=>respondToChallenge(btn.dataset.challengeAccept,'accept',btn));
+  });
+  box.querySelectorAll('[data-challenge-decline]').forEach(btn=>{
+    btn.addEventListener('click',()=>respondToChallenge(btn.dataset.challengeDecline,'decline',btn));
+  });
+}
+
+function renderMyChallenges(){
+  const d=CHALLENGE_STATE.dashboard;
+  const box=document.getElementById('myChallengeList');
+  const rows=(d?.challenges||[]).slice(0,20);
+  if(!rows.length){
+    box.innerHTML='<div class="challenge-empty">Викликів ще немає. Киньте перший виклик.</div>';
+    return;
+  }
+  box.innerHTML=rows.map(c=>challengeCardMarkup(c,false)).join('');
+}
+
+function renderChallengeMessages(){
+  const d=CHALLENGE_STATE.dashboard;
+  const box=document.getElementById('challengeMessageList');
+  const rows=d?.messages||[];
+  if(!rows.length){
+    box.innerHTML='<div class="challenge-empty">Повідомлень поки немає.</div>';
+    return;
+  }
+  box.innerHTML=rows.map(m=>`
+    <div class="challenge-message${m.isRead?'':' unread'}">
+      <div class="challenge-message-text">${escapeHtml(m.message||'')}</div>
+      <div class="challenge-message-time">${escapeHtml(formatChallengeDateTime(m.createdAt))}</div>
+    </div>
+  `).join('');
+}
+
+function renderChallengeChartSelector(){
+  const d=CHALLENGE_STATE.dashboard;
+  const select=document.getElementById('challengeChartSelector');
+  const series=d?.series||[];
+  const challengeById=new Map((d?.challenges||[]).map(c=>[c.challengeId,c]));
+
+  const options=[
+    {value:'self:weight',label:'Мої дані • Вага'},
+    {value:'self:waist',label:'Мої дані • Окружність талії'},
+    {value:'self:exercise',label:'Мої дані • Кількість вправ'}
+  ];
+
+  series.forEach(s=>{
+    const c=challengeById.get(s.challengeId);
+    const other=challengeOtherParticipant(c);
+    options.unshift({
+      value:`challenge:${s.challengeId}`,
+      label:`⚔ ${other.nickname} • ${challengeMetricLabel(s.metricType,s.exerciseName)}`
+    });
+  });
+
+  select.innerHTML=options.map(o=>`<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('');
+
+  const valid=options.some(o=>o.value===CHALLENGE_STATE.chartSelection);
+  if(!valid) CHALLENGE_STATE.chartSelection=series.length?`challenge:${series[0].challengeId}`:'self:weight';
+  select.value=CHALLENGE_STATE.chartSelection;
+  renderChallengeChart();
+}
+
+function pointsFromSelfMetrics(metricType){
+  const rows=CHALLENGE_STATE.dashboard?.metrics||[];
+  return rows.map(row=>{
+    let value=null;
+    if(metricType==='weight') value=row.weight;
+    if(metricType==='waist') value=row.waist;
+    if(metricType==='exercise') value=row.exerciseCount;
+    return {date:row.date,value};
+  }).filter(p=>p.value!==null && p.value!=='' && Number.isFinite(Number(p.value)))
+    .map(p=>({date:p.date,value:Number(p.value)}));
+}
+
+function chartLineSvg(points,xFor,yFor,strokeClass){
+  if(!points.length) return '';
+  const path=points.map((p,i)=>`${i?'L':'M'} ${xFor(p.date).toFixed(1)} ${yFor(p.value).toFixed(1)}`).join(' ');
+  const stroke=strokeClass==='opponent'?'var(--cyan)':'var(--blue-glow)';
+  const circles=points.map(p=>`<circle cx="${xFor(p.date).toFixed(1)}" cy="${yFor(p.value).toFixed(1)}" r="3.4" fill="${stroke}" stroke="var(--panel)" stroke-width="2"/>`).join('');
+  return `<path d="${path}" fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${circles}`;
+}
+
+function renderChallengeChart(){
+  const d=CHALLENGE_STATE.dashboard;
+  const box=document.getElementById('challengeChart');
+  const legend=document.getElementById('challengeLegend');
+  const selection=CHALLENGE_STATE.chartSelection||'self:weight';
+  let metricType='weight';
+  let title='Ви';
+  let opponentTitle='';
+  let selfPoints=[];
+  let opponentPoints=[];
+
+  if(selection.startsWith('challenge:')){
+    const id=selection.slice('challenge:'.length);
+    const s=(d?.series||[]).find(x=>x.challengeId===id);
+    if(s){
+      metricType=s.metricType;
+      selfPoints=s.self?.points||[];
+      opponentPoints=s.opponent?.points||[];
+      title=s.self?.nickname||'Ви';
+      opponentTitle=s.opponent?.nickname||'Опонент';
+    }
+  }else{
+    metricType=selection.split(':')[1]||'weight';
+    selfPoints=pointsFromSelfMetrics(metricType);
+    title=d?.participant?.nickname||'Ви';
+  }
+
+  const all=[...selfPoints,...opponentPoints];
+  if(!all.length){
+    box.innerHTML='<div class="challenge-chart-empty">Ще немає даних для цього графіка. Внесіть сьогоднішні метрики або дочекайтеся прийняття виклику.</div>';
+    legend.innerHTML='';
+    return;
+  }
+
+  const dates=[...new Set(all.map(p=>p.date))].sort();
+  const values=all.map(p=>Number(p.value)).filter(Number.isFinite);
+  let min=Math.min(...values),max=Math.max(...values);
+  if(min===max){min-=1;max+=1;}
+  const pad=(max-min)*0.12;
+  min-=pad; max+=pad;
+
+  const W=760,H=300,L=56,R=18,T=20,B=44;
+  const plotW=W-L-R,plotH=H-T-B;
+  const xFor=date=>{
+    const idx=Math.max(0,dates.indexOf(date));
+    return L+(dates.length===1?plotW/2:(idx/(dates.length-1))*plotW);
+  };
+  const yFor=value=>T+((max-Number(value))/(max-min))*plotH;
+
+  const yTicks=[];
+  for(let i=0;i<5;i++){
+    const v=max-((max-min)*i/4);
+    const y=T+(plotH*i/4);
+    yTicks.push(`
+      <line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="rgba(139,147,176,.18)" stroke-width="1"/>
+      <text x="${L-9}" y="${y+4}" text-anchor="end" fill="var(--dim)" font-size="10">${Number(v.toFixed(metricType==='exercise'?0:1))}</text>
+    `);
+  }
+  const xLabels=[];
+  const picks=[0,Math.floor((dates.length-1)/2),dates.length-1].filter((v,i,a)=>a.indexOf(v)===i);
+  picks.forEach(idx=>{
+    const date=dates[idx];
+    xLabels.push(`<text x="${xFor(date)}" y="${H-14}" text-anchor="middle" fill="var(--dim)" font-size="10">${escapeHtml(date.slice(5))}</text>`);
+  });
+
+  box.innerHTML=`
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Графік прогресу">
+      ${yTicks.join('')}
+      <line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="rgba(139,147,176,.35)" stroke-width="1"/>
+      ${xLabels.join('')}
+      ${chartLineSvg(selfPoints,xFor,yFor,'self')}
+      ${chartLineSvg(opponentPoints,xFor,yFor,'opponent')}
+      <text x="${W-R}" y="14" text-anchor="end" fill="var(--dim)" font-size="10">${escapeHtml(challengeUnit(metricType))}</text>
+    </svg>`;
+
+  legend.innerHTML=`
+    <div class="challenge-legend-item"><span class="challenge-legend-dot"></span>${escapeHtml(title)}</div>
+    ${opponentPoints.length?`<div class="challenge-legend-item opponent"><span class="challenge-legend-dot"></span>${escapeHtml(opponentTitle)}</div>`:''}
+  `;
+}
+
+async function respondToChallenge(challengeId,decision,button){
+  if(!challengeId) return;
+  const original=button.textContent;
+  button.disabled=true;
+  button.textContent='…';
+  try{
+    await challengePost('respondChallenge',{challengeId,decision});
+    showToast(decision==='accept'?'🏆 Виклик прийнято':'Виклик відхилено');
+    await loadChallengeDashboard(false);
+    await refreshChallengeNotifications();
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ '+(err.message||'Не вдалося відповісти на виклик'));
+    button.disabled=false;
+    button.textContent=original;
+  }
+}
+
+function toggleChallengeExerciseField(){
+  const type=document.getElementById('challengeMetricType').value;
+  document.getElementById('challengeExerciseNameWrap').hidden=type!=='exercise';
+  if(type==='exercise' && !document.getElementById('challengeExerciseName').value.trim()){
+    document.getElementById('challengeExerciseName').value=document.getElementById('metricExerciseName').value.trim();
+  }
+}
+
+async function createChallengeFromComposer(){
+  const opponentId=CHALLENGE_STATE.selectedOpponentId;
+  if(!opponentId){showToast('⚠️ Оберіть опонента');return;}
+  const metricType=document.getElementById('challengeMetricType').value;
+  const exerciseName=document.getElementById('challengeExerciseName').value.trim();
+  const periodDays=Number(document.getElementById('challengePeriodDays').value);
+  if(!Number.isInteger(periodDays)||periodDays<7){showToast('⚠️ Період — не менше 7 днів');return;}
+  if(metricType==='exercise'&&!exerciseName){showToast('⚠️ Вкажіть назву вправи');return;}
+
+  const btn=document.getElementById('confirmChallengeBtn');
+  const original=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Надсилання…';
+  try{
+    await challengePost('createChallenge',{opponentId,metricType,exerciseName,periodDays});
+    showToast('⚔️ Виклик надіслано');
+    CHALLENGE_STATE.selectedOpponentId='';
+    document.getElementById('selectedOpponentLabel').textContent='Оберіть опонента';
+    document.getElementById('challengeComposer').hidden=true;
+    await loadChallengeDashboard(false);
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ '+(err.message||'Не вдалося надіслати виклик'));
+  }finally{
+    btn.textContent=original;
+    btn.disabled=!CHALLENGE_STATE.selectedOpponentId;
+  }
+}
+
+async function saveCurrentDailyMetrics(){
+  const btn=document.getElementById('saveDailyMetricsBtn');
+  const original=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Збереження…';
+  try{
+    const weight=document.getElementById('metricWeight').value;
+    const waist=document.getElementById('metricWaist').value;
+    const exerciseName=document.getElementById('metricExerciseName').value.trim();
+    const exerciseCount=document.getElementById('metricExerciseCount').value;
+    if(exerciseCount!==''&&!exerciseName) throw new Error('Вкажіть назву вправи');
+    await challengePost('saveDailyMetrics',{weight,waist,exerciseName,exerciseCount});
+    showToast('✅ Метрики за сьогодні збережено');
+    await loadChallengeDashboard(false);
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ '+(err.message||'Не вдалося зберегти метрики'));
+  }finally{
+    btn.disabled=false;
+    btn.textContent=original;
+  }
+}
+
+function initChallengesModule(){
+  const nav=document.getElementById('challengesNavBtn');
+  const overlay=document.getElementById('challengeOverlay');
+  const closeBtn=document.getElementById('challengeCloseBtn');
+
+  if(nav) nav.addEventListener('click',e=>{e.preventDefault();openChallengesModal();});
+  if(closeBtn) closeBtn.addEventListener('click',closeChallengesModal);
+  if(overlay) overlay.addEventListener('click',e=>{if(e.target===overlay)closeChallengesModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay?.classList.contains('open'))closeChallengesModal();});
+
+  document.getElementById('refreshChallengesBtn')?.addEventListener('click',()=>loadChallengeDashboard(false));
+  document.getElementById('saveDailyMetricsBtn')?.addEventListener('click',saveCurrentDailyMetrics);
+  document.getElementById('openChallengeComposerBtn')?.addEventListener('click',()=>{
+    const composer=document.getElementById('challengeComposer');
+    composer.hidden=!composer.hidden;
+    if(!composer.hidden) renderChallengeParticipants();
+  });
+  document.getElementById('cancelChallengeBtn')?.addEventListener('click',()=>{
+    document.getElementById('challengeComposer').hidden=true;
+  });
+  document.getElementById('confirmChallengeBtn')?.addEventListener('click',createChallengeFromComposer);
+  document.getElementById('challengeMetricType')?.addEventListener('change',toggleChallengeExerciseField);
+  document.getElementById('challengeParticipantSearch')?.addEventListener('input',renderChallengeParticipants);
+  document.getElementById('challengeChartSelector')?.addEventListener('change',e=>{
+    CHALLENGE_STATE.chartSelection=e.target.value;
+    renderChallengeChart();
+  });
+
+  toggleChallengeExerciseField();
+  refreshChallengeNotifications();
+  setInterval(refreshChallengeNotifications,30000);
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initChallengesModule);
+}else{
+  initChallengesModule();
+}
 </script>
 
 <script>
