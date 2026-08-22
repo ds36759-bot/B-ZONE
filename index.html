@@ -1598,6 +1598,13 @@ html[data-theme="light"] footer .bzone-logo{
   gap:10px;
   margin-top:14px;
 }
+.challenge-score-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.challenge-score-toggle label{cursor:pointer;padding:9px 12px;border:1px solid rgba(93,132,255,.35);border-radius:10px;font-size:12px;color:var(--text)}
+.challenge-score-toggle input{accent-color:var(--blue-glow)}
+.challenge-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.challenge-result-card{padding:12px;border-radius:12px;background:rgba(93,132,255,.08);border:1px solid rgba(93,132,255,.18)}
+.challenge-result-card.opponent{background:rgba(95,227,208,.08);border-color:rgba(95,227,208,.2)}
+.challenge-result-value{font-size:22px;font-weight:800;margin:5px 0}.challenge-leader{margin-top:12px;padding:11px 13px;border-radius:10px;background:rgba(201,146,79,.13);font-weight:700}
 .challenge-lists-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -2146,6 +2153,15 @@ html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;bor
           <div class="metric-field">
             <label for="challengePeriodDays">Період, днів</label>
             <input id="challengePeriodDays" class="challenge-input" type="number" min="7" step="1" value="7">
+          </div>
+
+          <div class="metric-field full">
+            <label>Як визначати переможця?</label>
+            <div class="challenge-score-toggle" role="group" aria-label="Режим оцінювання">
+              <label><input type="radio" name="challengeScoringMode" value="percent" checked> % Відсотки</label>
+              <label><input type="radio" name="challengeScoringMode" value="units"> Одиниці</label>
+            </div>
+            <div class="challenge-note">Правило фіксується після надсилання виклику та однакове для обох учасників.</div>
           </div>
 
           <div class="metric-field full" id="challengeExerciseNameWrap" hidden>
@@ -3447,6 +3463,43 @@ function renderChallengeChart(){
   `;
 }
 
+// Challenge v15: the API supplies already-normalized, shared chart data. The
+// browser only renders it, so both participants always see the same result.
+function challengeScoreModeLabel(mode){ return mode==='units' ? 'Одиниці' : 'Відсотки (%)'; }
+function challengeResultText(value,mode,metricType){
+  if(value===null || value===undefined || !Number.isFinite(Number(value))) return '—';
+  const n=Number(value), digits=mode==='percent'?1:(metricType==='exercise'?0:1);
+  return `${n>0?'+':''}${n.toFixed(digits)}${mode==='percent'?'%':(challengeUnit(metricType)?' '+challengeUnit(metricType):'')}`;
+}
+function challengeCardMarkup(c,withActions=false){
+  const other=challengeOtherParticipant(c), metric=challengeMetricLabel(c.metricType,c.exerciseName);
+  const dates=c.startDate&&c.endDate?`${c.startDate} → ${c.endDate}`:`${c.periodDays} днів`;
+  return `<div class="challenge-item" data-challenge-id="${escapeHtml(c.challengeId)}"><img class="challenge-avatar" src="${escapeHtml(safeAvatar(other.avatar))}" alt="${escapeHtml(other.nickname)}"><div class="challenge-item-main"><div class="challenge-item-title">${escapeHtml(other.nickname)} • ${escapeHtml(metric)}</div><div class="challenge-item-meta">${escapeHtml(dates)} • Оцінювання: ${challengeScoreModeLabel(c.scoringMode)}</div><span class="challenge-status ${challengeStatusClass(c.status)}">${escapeHtml(challengeStatusLabel(c.status))}</span>${withActions?`<div class="challenge-item-actions"><button class="challenge-accept" data-challenge-accept="${escapeHtml(c.challengeId)}">✓ Прийняти</button><button class="challenge-decline" data-challenge-decline="${escapeHtml(c.challengeId)}">Відхилити</button></div>`:''}</div></div>`;
+}
+function renderChallengeChartSelector(){
+  const d=CHALLENGE_STATE.dashboard, select=document.getElementById('challengeChartSelector');
+  const series=d?.series||[];
+  select.innerHTML=series.map(s=>`<option value="challenge:${escapeHtml(s.challengeId)}">⚔ ${escapeHtml(s.opponent?.nickname||'Опонент')} • ${escapeHtml(challengeMetricLabel(s.metricType,s.exerciseName))} • ${challengeScoreModeLabel(s.scoringMode)}</option>`).join('');
+  if(!series.length){ select.innerHTML='<option value="">Немає активних челенджів</option>'; CHALLENGE_STATE.chartSelection=''; }
+  if(series.length&&!series.some(s=>`challenge:${s.challengeId}`===CHALLENGE_STATE.chartSelection)) CHALLENGE_STATE.chartSelection=`challenge:${series[0].challengeId}`;
+  select.value=CHALLENGE_STATE.chartSelection; renderChallengeChart();
+}
+function renderChallengeChart(){
+  const d=CHALLENGE_STATE.dashboard, box=document.getElementById('challengeChart'), legend=document.getElementById('challengeLegend');
+  const id=String(CHALLENGE_STATE.chartSelection||'').replace('challenge:','');
+  const s=(d?.series||[]).find(x=>x.challengeId===id);
+  if(!s||!(s.chart||[]).length){ box.innerHTML='<div class="challenge-chart-empty">Дані для спільного графіка з’являться після стартових записів обох учасників.</div>'; legend.innerHTML=''; return; }
+  const rows=s.chart, values=rows.flatMap(r=>[r.me,r.opponent]).filter(v=>v!==null&&Number.isFinite(Number(v))).map(Number);
+  let min=Math.min(0,...values),max=Math.max(0,...values); if(min===max){min-=1;max+=1;} const pad=(max-min)*.12; min-=pad;max+=pad;
+  const W=760,H=300,L=58,R=18,T=22,B=44,pw=W-L-R,ph=H-T-B;
+  const x=i=>L+(rows.length===1?pw/2:i/(rows.length-1)*pw), y=v=>T+(max-v)/(max-min)*ph;
+  const line=(key,color)=>{const p=rows.filter(r=>r[key]!==null&&Number.isFinite(Number(r[key]))); if(!p.length)return ''; return `<path d="${p.map(r=>`${r===p[0]?'M':'L'} ${x(rows.indexOf(r)).toFixed(1)} ${y(Number(r[key])).toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"/>${p.map(r=>`<circle cx="${x(rows.indexOf(r)).toFixed(1)}" cy="${y(Number(r[key])).toFixed(1)}" r="3.5" fill="${color}"/>`).join('')}`;};
+  let grid=''; for(let i=0;i<5;i++){const v=max-(max-min)*i/4, yy=T+ph*i/4;grid+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="rgba(139,147,176,.18)"/><text x="${L-9}" y="${yy+4}" text-anchor="end" fill="var(--dim)" font-size="10">${v.toFixed(s.scoringMode==='percent'?1:0)}${s.scoringMode==='percent'?'%':''}</text>`;}
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Спільний графік прогресу"><text x="${W-R}" y="14" text-anchor="end" fill="var(--dim)" font-size="10">${s.scoringMode==='percent'?'%':escapeHtml(challengeUnit(s.metricType))}</text>${grid}${line('me','var(--blue-glow)')}${line('opponent','var(--cyan)')}</svg>`;
+  const leader=s.leader==='me'?s.me.nickname:s.leader==='opponent'?s.opponent.nickname:'Нічия';
+  legend.innerHTML=`<div class="challenge-legend-item"><span class="challenge-legend-dot"></span>${escapeHtml(s.me.nickname)}</div><div class="challenge-legend-item opponent"><span class="challenge-legend-dot"></span>${escapeHtml(s.opponent.nickname)}</div><div class="challenge-result-grid"><div class="challenge-result-card"><strong>${escapeHtml(s.me.nickname)}</strong><div class="challenge-result-value">${challengeResultText(s.me.result,s.scoringMode,s.metricType)}</div><small>${s.me.start??'—'} → ${s.me.current??'—'} ${escapeHtml(challengeUnit(s.metricType))}</small></div><div class="challenge-result-card opponent"><strong>${escapeHtml(s.opponent.nickname)}</strong><div class="challenge-result-value">${challengeResultText(s.opponent.result,s.scoringMode,s.metricType)}</div><small>${s.opponent.start??'—'} → ${s.opponent.current??'—'} ${escapeHtml(challengeUnit(s.metricType))}</small></div></div><div class="challenge-leader">🏆 ${s.leader==='tie'?'Наразі нічия':`Лідирує ${escapeHtml(leader)}`}</div>`;
+}
+
 async function respondToChallenge(challengeId,decision,button){
   if(!challengeId) return;
   const original=button.textContent;
@@ -3479,6 +3532,7 @@ async function createChallengeFromComposer(){
   const metricType=document.getElementById('challengeMetricType').value;
   const exerciseName=document.getElementById('challengeExerciseName').value.trim();
   const periodDays=Number(document.getElementById('challengePeriodDays').value);
+  const scoringMode=document.querySelector('input[name="challengeScoringMode"]:checked')?.value||'percent';
   if(!Number.isInteger(periodDays)||periodDays<7){showToast('⚠️ Період — не менше 7 днів');return;}
   if(metricType==='exercise'&&!exerciseName){showToast('⚠️ Вкажіть назву вправи');return;}
 
@@ -3487,7 +3541,7 @@ async function createChallengeFromComposer(){
   btn.disabled=true;
   btn.textContent='Надсилання…';
   try{
-    await challengePost('createChallenge',{opponentId,metricType,exerciseName,periodDays});
+    await challengePost('createChallenge',{opponentId,metricType,exerciseName,periodDays,scoringMode});
     showToast('⚔️ Виклик надіслано');
     CHALLENGE_STATE.selectedOpponentId='';
     document.getElementById('selectedOpponentLabel').textContent='Оберіть опонента';
