@@ -1497,6 +1497,10 @@ html[data-theme="light"] footer .bzone-logo{
   font-size:12px;
 }
 .metric-date strong{color:var(--cyan)}
+.health-goal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.health-goal-card{padding:10px;border:1px solid var(--panel-edge);border-radius:12px;background:rgba(95,227,208,.05)}
+.health-goal-card strong{display:block;font-size:16px;color:var(--white);margin:3px 0}.health-goal-card span{font-size:10px;color:var(--dim)}
+.health-goal-card .goal-ok{color:var(--cyan)}.health-goal-card .goal-remaining{color:var(--tan)}
 .challenge-actions-stack{
   display:grid;
   gap:10px;
@@ -1743,6 +1747,7 @@ html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;bor
   .challenge-card-head{align-items:flex-start;flex-direction:column}
   .challenge-chart-select{width:100%}
   .metric-grid,.challenge-composer-grid{grid-template-columns:1fr}
+  .health-goal-grid{grid-template-columns:1fr}
   .metric-field.full,.challenge-composer-grid .full{grid-column:auto}
   .challenge-participant-list{grid-template-columns:1fr}
   .challenge-composer-actions{flex-direction:column-reverse}
@@ -2113,6 +2118,10 @@ html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;bor
               <label for="metricWaist">Окружність талії, см</label>
               <input class="challenge-input" id="metricWaist" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="Напр. 84">
             </div>
+            <div class="metric-field"><label for="metricHeight">Зріст, см</label><input class="challenge-input" id="metricHeight" type="number" min="80" max="260" step="0.1" inputmode="decimal" placeholder="Напр. 178"></div>
+            <div class="metric-field"><label for="metricWeightTarget">Цільова вага, кг</label><input class="challenge-input" id="metricWeightTarget" type="number" min="20" max="500" step="0.1" inputmode="decimal" placeholder="Напр. 80"></div>
+            <div class="metric-field"><label for="metricWaistTarget">Цільова талія, см</label><input class="challenge-input" id="metricWaistTarget" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="Напр. 82"></div>
+            <div class="metric-field"><label for="metricBmiTarget">Цільовий ІМТ</label><input class="challenge-input" id="metricBmiTarget" type="number" min="10" max="80" step="0.1" inputmode="decimal" placeholder="Напр. 24.9"></div>
             <div class="metric-field full">
               <label for="metricExerciseName">Назва вправи</label>
               <input class="challenge-input" id="metricExerciseName" type="text" maxlength="80" placeholder="Напр. присідання">
@@ -2122,6 +2131,8 @@ html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;bor
               <input class="challenge-input" id="metricExerciseCount" type="number" min="0" step="1" inputmode="numeric" placeholder="Напр. 50">
             </div>
           </div>
+
+          <div class="health-goal-grid" id="healthGoalCards" aria-live="polite"></div>
 
           <div class="challenge-actions-stack">
             <button class="challenge-primary-btn" id="saveDailyMetricsBtn" type="button">💾 Зберегти дані за сьогодні</button>
@@ -3209,6 +3220,16 @@ async function loadChallengeDashboard(markRead=false){
   }
 }
 
+function renderHealthGoalCards(t){
+  const box=document.getElementById('healthGoalCards'); if(!box) return;
+  const num=v=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?null:Number(v);
+  const weight=num(t.weight),waist=num(t.waist),height=num(t.height),targetWeight=num(t.targetWeight),targetWaist=num(t.targetWaist),targetBmi=num(t.targetBmi);
+  const bmi=weight&&height?weight/Math.pow(height/100,2):null;
+  const bmiComment=!bmi?'Додайте вагу і зріст':bmi<18.5?'Нижче норми':bmi<25?'Норма':bmi<30?'Надмірна вага':'Ожиріння';
+  const card=(label,fact,target,unit,comment)=>{const delta=fact!==null&&target!==null?fact-target:null,remaining=delta===null?null:Math.abs(delta),done=remaining!==null&&remaining<0.05;const action=delta>0?'Зменшити':delta<0?'Набрати':'Цілі досягнуто';return `<div class="health-goal-card"><span>${label}</span><strong>${fact===null?'—':fact.toFixed(1)+(unit?' '+unit:'')}</strong><span>Ціль: ${target===null?'—':target.toFixed(1)+(unit?' '+unit:'')}</span><br><span class="${done?'goal-ok':'goal-remaining'}">${remaining===null?'Вкажіть ціль':done?'Цілі досягнуто':`${action}: ${remaining.toFixed(1)}${unit?' '+unit:''}`}</span>${comment?`<br><span>${comment}</span>`:''}</div>`;};
+  box.innerHTML=card('Вага',weight,targetWeight,'кг','')+card('Талія',waist,targetWaist,'см','')+card('ІМТ',bmi,targetBmi,'',bmiComment);
+}
+
 function renderChallengeDashboard(){
   const d=CHALLENGE_STATE.dashboard;
   if(!d) return;
@@ -3219,6 +3240,10 @@ function renderChallengeDashboard(){
   const t=d.todayMetrics||{};
   document.getElementById('metricWeight').value=t.weight??'';
   document.getElementById('metricWaist').value=t.waist??'';
+  document.getElementById('metricHeight').value=t.height??'';
+  document.getElementById('metricWeightTarget').value=t.targetWeight??'';
+  document.getElementById('metricWaistTarget').value=t.targetWaist??'';
+  document.getElementById('metricBmiTarget').value=t.targetBmi??'';
   document.getElementById('metricExerciseName').value=t.exerciseName||'';
   document.getElementById('metricExerciseCount').value=t.exerciseCount??'';
 
@@ -3226,6 +3251,7 @@ function renderChallengeDashboard(){
   renderIncomingChallenges();
   renderMyChallenges();
   renderChallengeMessages();
+  renderHealthGoalCards(t);
   renderChallengeChartSelector();
 }
 
@@ -3605,10 +3631,14 @@ async function saveCurrentDailyMetrics(){
   try{
     const weight=document.getElementById('metricWeight').value;
     const waist=document.getElementById('metricWaist').value;
+    const height=document.getElementById('metricHeight').value;
+    const targetWeight=document.getElementById('metricWeightTarget').value;
+    const targetWaist=document.getElementById('metricWaistTarget').value;
+    const targetBmi=document.getElementById('metricBmiTarget').value;
     const exerciseName=document.getElementById('metricExerciseName').value.trim();
     const exerciseCount=document.getElementById('metricExerciseCount').value;
     if(exerciseCount!==''&&!exerciseName) throw new Error('Вкажіть назву вправи');
-    await challengePost('saveDailyMetrics',{weight,waist,exerciseName,exerciseCount});
+    await challengePost('saveDailyMetrics',{weight,waist,height,targetWeight,targetWaist,targetBmi,exerciseName,exerciseCount});
     showToast('✅ Метрики за сьогодні збережено');
     await loadChallengeDashboard(false);
   }catch(err){
