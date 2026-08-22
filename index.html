@@ -3526,6 +3526,47 @@ function toggleChallengeExerciseField(){
   }
 }
 
+// Keep the user's standalone metrics alongside challenge charts.
+function renderChallengeChartSelector(){
+  const d=CHALLENGE_STATE.dashboard, select=document.getElementById('challengeChartSelector'), series=d?.series||[];
+  const own=[
+    {value:'self:weight',label:'Мої показники • Вага'},
+    {value:'self:waist',label:'Мої показники • Окружність талії'},
+    {value:'self:exercise',label:'Мої показники • Вправи'}
+  ];
+  const challenges=series.map(s=>({value:`challenge:${s.challengeId}`,label:`⚔ ${s.opponent?.nickname||'Опонент'} • ${challengeMetricLabel(s.metricType,s.exerciseName)} • ${challengeScoreModeLabel(s.scoringMode)}`}));
+  const options=[...challenges,...own];
+  select.innerHTML=options.map(o=>`<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('');
+  if(!options.some(o=>o.value===CHALLENGE_STATE.chartSelection)) CHALLENGE_STATE.chartSelection=challenges[0]?.value||own[0].value;
+  select.value=CHALLENGE_STATE.chartSelection; renderChallengeChart();
+}
+function renderPersonalMetricChart(metricType){
+  const d=CHALLENGE_STATE.dashboard, box=document.getElementById('challengeChart'), legend=document.getElementById('challengeLegend');
+  const points=pointsFromSelfMetrics(metricType);
+  if(!points.length){box.innerHTML='<div class="challenge-chart-empty">Ще немає збережених особистих показників для цього графіка.</div>';legend.innerHTML='';return;}
+  const values=points.map(p=>Number(p.value)), W=760,H=300,L=58,R=18,T=22,B=44,pw=W-L-R,ph=H-T-B;
+  let min=Math.min(...values),max=Math.max(...values);if(min===max){min-=1;max+=1;}const pad=(max-min)*.12;min-=pad;max+=pad;
+  const x=i=>L+(points.length===1?pw/2:i/(points.length-1)*pw),y=v=>T+(max-v)/(max-min)*ph;
+  let grid='';for(let i=0;i<5;i++){const v=max-(max-min)*i/4,yy=T+ph*i/4;grid+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="rgba(139,147,176,.18)"/><text x="${L-9}" y="${yy+4}" text-anchor="end" fill="var(--dim)" font-size="10">${v.toFixed(metricType==='exercise'?0:1)}</text>`;}
+  const path=points.map((p,i)=>`${i?'L':'M'} ${x(i).toFixed(1)} ${y(Number(p.value)).toFixed(1)}`).join(' ');
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Мої показники">${grid}<path d="${path}" fill="none" stroke="var(--blue-glow)" stroke-width="3" stroke-linecap="round"/>${points.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(Number(p.value)).toFixed(1)}" r="3.5" fill="var(--blue-glow)"/>`).join('')}</svg>`;
+  legend.innerHTML=`<div class="challenge-legend-item"><span class="challenge-legend-dot"></span>${escapeHtml(d?.participant?.nickname||'Мої показники')} • ${escapeHtml(challengeMetricLabel(metricType,''))}</div>`;
+}
+function renderChallengeChart(){
+  const selection=String(CHALLENGE_STATE.chartSelection||'');
+  if(selection.startsWith('self:')){renderPersonalMetricChart(selection.slice(5));return;}
+  const d=CHALLENGE_STATE.dashboard,box=document.getElementById('challengeChart'),legend=document.getElementById('challengeLegend'),id=selection.replace('challenge:',''),s=(d?.series||[]).find(x=>x.challengeId===id);
+  if(!s||!(s.chart||[]).length){box.innerHTML='<div class="challenge-chart-empty">Для спільного графіка потрібні стартові записи обох учасників.</div>';legend.innerHTML='';return;}
+  const rows=s.chart,values=rows.flatMap(r=>[r.me,r.opponent]).filter(v=>v!==null&&Number.isFinite(Number(v))).map(Number);let min=Math.min(0,...values),max=Math.max(0,...values);if(min===max){min-=1;max+=1;}const pad=(max-min)*.12;min-=pad;max+=pad;
+  const W=760,H=300,L=58,R=18,T=22,B=44,pw=W-L-R,ph=H-T-B,x=i=>L+(rows.length===1?pw/2:i/(rows.length-1)*pw),y=v=>T+(max-v)/(max-min)*ph;
+  const line=(key,color)=>{const p=rows.map((r,i)=>({...r,i})).filter(r=>r[key]!==null&&Number.isFinite(Number(r[key])));return p.length?`<path d="${p.map((r,j)=>`${j?'L':'M'} ${x(r.i).toFixed(1)} ${y(Number(r[key])).toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"/>${p.map(r=>`<circle cx="${x(r.i).toFixed(1)}" cy="${y(Number(r[key])).toFixed(1)}" r="3.5" fill="${color}"/>`).join('')}`:'';};
+  let grid='';for(let i=0;i<5;i++){const v=max-(max-min)*i/4,yy=T+ph*i/4;grid+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="rgba(139,147,176,.18)"/><text x="${L-9}" y="${yy+4}" text-anchor="end" fill="var(--dim)" font-size="10">${v.toFixed(s.scoringMode==='percent'?1:0)}${s.scoringMode==='percent'?'%':''}</text>`;}
+  const xLabels=rows.map((r,i)=>((i===0||i===rows.length-1||i===Math.floor((rows.length-1)/2))?`<text x="${x(i)}" y="${H-14}" text-anchor="middle" fill="var(--dim)" font-size="10">${escapeHtml(String(r.date||'').slice(5))}</text>`:'')).join('');
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Спільний графік прогресу">${grid}${xLabels}${line('me','var(--blue-glow)')}${line('opponent','var(--cyan)')}</svg>`;
+  const leader=s.leader==='me'?s.me.nickname:s.leader==='opponent'?s.opponent.nickname:'Нічия';
+  legend.innerHTML=`<div class="challenge-legend-item"><span class="challenge-legend-dot"></span>${escapeHtml(s.me.nickname)}</div><div class="challenge-legend-item opponent"><span class="challenge-legend-dot"></span>${escapeHtml(s.opponent.nickname)}</div><div class="challenge-result-grid"><div class="challenge-result-card"><strong>${escapeHtml(s.me.nickname)}</strong><div class="challenge-result-value">${challengeResultText(s.me.result,s.scoringMode,s.metricType)}</div><small>${s.me.start??'—'} → ${s.me.current??'—'} ${escapeHtml(challengeUnit(s.metricType))}</small></div><div class="challenge-result-card opponent"><strong>${escapeHtml(s.opponent.nickname)}</strong><div class="challenge-result-value">${challengeResultText(s.opponent.result,s.scoringMode,s.metricType)}</div><small>${s.opponent.start??'—'} → ${s.opponent.current??'—'} ${escapeHtml(challengeUnit(s.metricType))}</small></div></div><div class="challenge-leader">🏆 ${s.leader==='tie'?'Наразі нічия':`Лідирує ${escapeHtml(leader)}`}</div>`;
+}
+
 async function createChallengeFromComposer(){
   const opponentId=CHALLENGE_STATE.selectedOpponentId;
   if(!opponentId){showToast('⚠️ Оберіть опонента');return;}
