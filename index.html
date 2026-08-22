@@ -1285,6 +1285,136 @@ html[data-theme="light"] footer .bzone-logo{
   opacity:0.88;
 }
 
+/* =========================================================
+   LIGHT THEME — FULL MODAL REWORK (no more merging elements)
+   The base CSS hardcodes dark colors (var(--panel), var(--void),
+   var(--dim), rgba(255,255,255,x) borders, white text) for the
+   login/profile modal, the cart modal and various inner blocks.
+   Only the *text color* was being flipped to dark for light mode,
+   while the *background* stayed dark — so dark text sat on a dark
+   background (invisible / "merged"). This block gives every modal
+   a real light background and re-styles every child element that
+   still assumed a dark background.
+   ========================================================= */
+
+/* ---- Login / Profile modal (".modal") ---- */
+html[data-theme="light"] .modal{
+  background:#ffffff;
+  color:#142238;
+  border:1px solid rgba(20,34,56,.14);
+  box-shadow:0 24px 60px rgba(20,34,56,.18);
+}
+html[data-theme="light"] .modal .close-x{
+  background:rgba(20,34,56,.06);
+  color:#52647a;
+}
+html[data-theme="light"] .modal .close-x:hover{
+  background:rgba(20,34,56,.12);
+  color:#142238;
+}
+html[data-theme="light"] .modal-head p{
+  color:#52647a;
+}
+html[data-theme="light"] .divider-row{
+  color:#8a96a8;
+}
+html[data-theme="light"] .divider-row::before,
+html[data-theme="light"] .divider-row::after{
+  background:rgba(20,34,56,.14);
+}
+html[data-theme="light"] .field label{
+  color:#52647a;
+}
+html[data-theme="light"] .field input[type=text]{
+  background:#f5f8fc;
+  border-color:rgba(20,34,56,.15);
+  color:#142238;
+}
+html[data-theme="light"] .avatar-picker .big-avatar{
+  border-color:rgba(20,34,56,.15);
+}
+html[data-theme="light"] .avatar-picker .big-avatar img{
+  background:#eef3f9;
+}
+html[data-theme="light"] .avatar-picker > div > div{
+  color:#52647a !important;
+}
+html[data-theme="light"] .exercise-mascot-section{
+  background:#f5f8fc;
+  border-color:rgba(20,34,56,.13);
+}
+html[data-theme="light"] .exercise-mascot-head span{
+  color:#52647a;
+}
+html[data-theme="light"] .exercise-mascot-opt{
+  background:#ffffff;
+  border-color:rgba(20,34,56,.12);
+}
+html[data-theme="light"] .exercise-mascot-opt .name{
+  color:#52647a;
+}
+html[data-theme="light"] .exercise-mascot-empty{
+  color:#52647a;
+}
+html[data-theme="light"] .toggle-row{
+  border-top-color:rgba(20,34,56,.10);
+}
+html[data-theme="light"] .toggle-copy span{
+  color:#52647a;
+}
+html[data-theme="light"] .switch .slider{
+  background:#d6dde6;
+  border-color:rgba(20,34,56,.15);
+}
+html[data-theme="light"] .profile-stats .stat{
+  background:#f5f8fc;
+  border-color:rgba(20,34,56,.13);
+}
+
+/* ---- Cart modal ---- */
+html[data-theme="light"] .cart-overlay{
+  background:rgba(20,34,56,.30);
+}
+html[data-theme="light"] .cart-modal{
+  background:#ffffff;
+  border:1px solid rgba(20,34,56,.14);
+  box-shadow:0 24px 60px rgba(20,34,56,.18);
+  color:#142238;
+}
+html[data-theme="light"] .cart-close{
+  color:#52647a;
+}
+html[data-theme="light"] .cart-close:hover{
+  color:#142238;
+}
+html[data-theme="light"] .cart-empty{
+  color:#52647a;
+}
+html[data-theme="light"] .cart-item{
+  border-bottom-color:rgba(20,34,56,.10);
+}
+html[data-theme="light"] .cart-item-icon{
+  background:#f5f8fc;
+}
+html[data-theme="light"] .cart-item-price{
+  color:#52647a;
+}
+html[data-theme="light"] .cart-controls button{
+  border-color:rgba(24,125,112,.35);
+  background:rgba(24,125,112,.08);
+  color:#0a6b5e;
+}
+html[data-theme="light"] .cart-remove{
+  color:#c62c3c !important;
+}
+html[data-theme="light"] .cart-total{
+  border-top-color:rgba(20,34,56,.14);
+}
+html[data-theme="light"] .cart-actions .secondary{
+  background:#eef3f9;
+  color:#142238;
+}
+
 
 /* ===== B-ZONE CHALLENGES ===== */
 .challenge-nav-link{
@@ -1735,6 +1865,24 @@ html[data-theme="light"] .challenge-message{
 }
 html[data-theme="light"] .challenge-close,
 html[data-theme="light"] .challenge-refresh{color:#142238;background:#f3f6fa;border-color:rgba(20,34,56,.13)}
+html[data-theme="light"] .challenge-kicker{color:#0a6b5e}
+html[data-theme="light"] .challenge-head p,
+html[data-theme="light"] .challenge-legend,
+html[data-theme="light"] .challenge-loading,
+html[data-theme="light"] .challenge-chart-empty,
+html[data-theme="light"] .challenge-note,
+html[data-theme="light"] .challenge-item-meta,
+html[data-theme="light"] .challenge-message-time,
+html[data-theme="light"] .metric-field label{color:#52647a}
+html[data-theme="light"] .health-goal-card{background:rgba(24,125,112,.07);border-color:rgba(24,125,112,.20)}
+html[data-theme="light"] .health-goal-card strong{color:#142238}
+html[data-theme="light"] .health-goal-card span{color:#52647a}
+html[data-theme="light"] .challenge-avatar,
+html[data-theme="light"] .challenge-person img{background:#e7eef7}
+html[data-theme="light"] .challenge-score-toggle label{color:#142238;border-color:rgba(21,65,240,.30)}
+html[data-theme="light"] .challenge-empty{border-color:rgba(20,34,56,.18);color:#52647a}
+html[data-theme="light"] .metric-date{background:rgba(24,125,112,.08);border-color:rgba(24,125,112,.20)}
+html[data-theme="light"] .metric-date strong{color:#0a6b5e}
 @media(max-width:900px){
   .challenge-modal{padding:22px 16px}
   .challenge-top-grid,.challenge-lists-grid{grid-template-columns:1fr}
